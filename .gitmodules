@@ -1,0 +1,18 @@
+[submodule "edk2"]
+	path = edk2
+	url = https://github.com/96boards/edk2.git
+	branch = hikey
+[submodule "arm-trusted-firmware"]
+	path = arm-trusted-firmware
+	url = https://github.com/96boards/arm-trusted-firmware.git
+	branch = hikey
+[submodule "l-loader"]
+	path = l-loader
+	url = https://github.com/jforissier/l-loader.git
+[submodule "linux"]
+	path = linux
+	url = https://github.com/96boards/linux.git
+	branch = hikey
+[submodule "burn-boot"]
+	path = burn-boot
+	url = https://github.com/96boards/burn-boot.git
