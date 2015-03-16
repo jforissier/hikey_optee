@@ -1,5 +1,5 @@
 This repository contains the software required to boot the HiKey board
-with UEFI: ARM Trusted Firmware, EDK2, Linux kernel.
+with UEFI: ARM Trusted Firmware, EDK2, Linux kernel, BusyBox.
 See https://github.com/96boards/documentation/wiki/UEFI for details.
 
 ## Usage
@@ -15,8 +15,18 @@ On the hardware side, you need:
 - A USB cable (male/male, A to micro-B) to connect your PC to the board
 - A serial to USB adapter cable to connect to the SoC's UART0 (console).
   This  is not strictly required but chances are you won't be able to
-  debug any bootloader/secure OS code without it. See below for
-  details.
+  debug any bootloader/secure OS code without it.
+  You need a 1.8V-compatible serial cable. The one I use is made by FTDI and
+  is reference TTL-232RG-VIP. Not cheap, but works fine.
+  Wiring for this cable is as follows:
+```
+ RED [VCC]     <==> Pin 1 [1.8V]
+ BLACK [GND]   <==> Pin 3 [DGND]
+ YELLOW [RXD]  <==> Pin 4 [UART0_TX]
+ ORANGE [TXD]  <==> Pin 2 [UART0_RX]
+ GREEN  [RTS#] <==> (not connected)
+ BROWN  [CTS#] <==> (not connected)
+```
 
 As for software:
 ```
@@ -32,19 +42,6 @@ $ make
 ```
 
 ### 3. How to flash the firmware onto the board
-
-See `make help` and https://github.com/96boards/documentation/wiki/UEFI.
-
-## Appendix A: USB-serial cable
-
-You need a 1.8V-compatible serial cable. The one I use is made by FTDI and
-is reference TTL-232RG-VIP. Not cheap, but works fine.
-Wiring is as follows:
 ```
- RED [VCC]     <==> Pin 1 [1.8V]
- BLACK [GND]   <==> Pin 3 [DGND]
- YELLOW [RXD]  <==> Pin 4 [UART0_TX]
- ORANGE [TXD]  <==> Pin 2 [UART0_RX]
- GREEN  [RTS#] <==> (not connected)
- BROWN  [CTS#] <==> (not connected)
+$ make help
 ```
