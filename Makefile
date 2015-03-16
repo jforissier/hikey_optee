@@ -59,7 +59,7 @@ help:
 	@echo "Flashing micro-howto:"
 	@echo "  ; Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
 	@echo "  sudo python burn-boot/hisi-idt.py -d /dev/ttyUSB1 --img1=$(LLOADER)"
-	@echo "  ; It takes 10-15 seconds before fastboot is ready on the USB port" 
+	@echo "  ; It takes a few seconds before fastboot is ready on the USB port"
 	@echo "  fastboot flash ptable $(PTABLE)"
 	@echo "  fastboot flash fastboot $(FIP)"
 	@echo "  fastboot flash nvme $(NVME)"
@@ -104,6 +104,7 @@ cleaner-aarch64-gcc:
 distclean-aarch64-gcc:
 	$(ECHO) '  DISTCL  $@'
 	$(Q)rm -f downloads/$(AARCH64_GCC_TARBALL)
+
 #
 # UEFI
 #
