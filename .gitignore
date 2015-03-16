@@ -1,4 +1,6 @@
+/.busybox
 /.edk2basetools
 /.linuxbuildinprogress
 /nvme.img
-/boot-fat.uefi.img
+/boot.img
+/initramfs.cpio.gz

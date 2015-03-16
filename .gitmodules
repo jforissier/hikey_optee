@@ -16,3 +16,6 @@
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
+[submodule "gen_rootfs"]
+	path = gen_rootfs
+	url = https://github.com/jforissier/gen_rootfs.git

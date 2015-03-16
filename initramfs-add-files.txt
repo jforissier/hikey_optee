@@ -1,0 +1,2 @@
+# Files to add to filesystem.cpio.gz
+# Syntax: same as gen_rootfs/filelist.txt
