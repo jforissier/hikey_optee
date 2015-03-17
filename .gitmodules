@@ -1,6 +1,6 @@
 [submodule "edk2"]
 	path = edk2
-	url = https://github.com/96boards/edk2.git
+	url = https://github.com/jforissier/edk2.git
 	branch = hikey
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
