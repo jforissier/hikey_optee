@@ -58,14 +58,15 @@ help:
 	@echo "Plain 'make' or 'make all' do check all dependencies, however."
 	@echo
 	@echo "Flashing micro-howto:"
-	@echo "  ; Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
+	@echo "  # Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
 	@echo "  sudo python burn-boot/hisi-idt.py -d /dev/ttyUSB1 --img1=$(LLOADER)"
-	@echo "  ; It takes a few seconds before fastboot is ready on the USB port"
+	@echo "  # It takes a few seconds before fastboot is ready on the USB port"
 	@echo "  fastboot flash ptable $(PTABLE)"
+	@echo "  # Or, on the board: dd if=/tmp/fip.bin of=/dev/mmcblk0p4"
 	@echo "  fastboot flash fastboot $(FIP)"
 	@echo "  fastboot flash nvme $(NVME)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
-	@echo "  ; Set J15 pins 1-2 closed 3-4 open 5-6 open (normal eMMC boot)"
+	@echo "  # Set J15 pins 1-2 closed 3-4 open 5-6 open (boot from eMMC)"
 
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
