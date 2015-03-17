@@ -17,7 +17,7 @@ endif
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
 
-all: build-bl1 build-bl2 build-bl31 build-bl33 build-fip build-lloader build-ptable build-linux build-dtb build-boot-img build-nvme build-initramfs
+all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable clean-linux-dtb clean-boot-img clean-initramfs
 
@@ -71,7 +71,6 @@ help:
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
 endif
-export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-
 
 filename = $(lastword $(subst /, ,$(1)))
 
@@ -94,6 +93,7 @@ AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
 aarch64-linux-gnu-gcc := toolchains/$(AARCH64_GCC_DIR)
 
+export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-
 
 #
 # Download rules
@@ -277,7 +277,8 @@ build-dtb $(DTB): linux/.config
 
 linux/.config:
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C linux ARCH=arm64 defconfig
+	$(Q)cd linux && ARCH=arm64 scripts/kconfig/merge_config.sh \
+	    arch/arm64/configs/defconfig ../kernel.config
 
 linux/usr/gen_init_cpio: linux/.config
 	$(ECHO) '  BUILD   $@'
@@ -307,7 +308,7 @@ endif
 .PHONY: build-boot-img
 build-boot-img:: $(boot-img-deps)
 build-boot-img $(BOOT-IMG)::
-	$(ECHO) '  GEN     $@'
+	$(ECHO) '  GEN    $(BOOT-IMG)'
 	$(Q)sudo -p "[sudo] Password:" true
 	$(Q)if [ -d .tmpbootimg ] ; then sudo rm -rf .tmpbootimg ; fi
 	$(Q)mkdir -p .tmpbootimg
