@@ -280,7 +280,7 @@ linux/.config:
 
 linux/usr/gen_init_cpio: linux/.config
 	$(ECHO) '  BUILD   $@'
-	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 usr/gen_init_cpio
+	$(Q)$(MAKE) -C linux/usr ARCH=arm64 gen_init_cpio
 
 clean-linux-dtb:
 	$(ECHO) '  CLEAN   arm-trusted-firmware'
