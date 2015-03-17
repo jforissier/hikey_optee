@@ -22,3 +22,6 @@
 [submodule "optee_linuxdriver"]
 	path = optee_linuxdriver
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
+[submodule "optee_client"]
+	path = optee_client
+	url = https://github.com/OP-TEE/optee_client.git

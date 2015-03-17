@@ -335,6 +335,9 @@ INITRAMFS = initramfs.cpio.gz
 ifneq ($(filter all build-optee-linuxdriver,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-linuxdriver
 endif
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+initramfs-deps += build-optee-client
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -404,4 +407,20 @@ clean-optee-linuxdriver:
 	   LOCALVERSION= \
 	   M=../optee_linuxdriver \
 	   clean
+
+#
+# OP-TEE client library and tee-supplicant executable
+#
+
+optee-client-files := optee_client/out/export/lib/libteec.so.1.0 \
+		      optee_client/out/export/bin/tee-supplicant
+
+.PHONY: build-optee-client
+build-optee-client $(optee-client-files): $(aarch64-linux-gnu-gcc)
+	$(ECHO) '  BUILD   build-optee-client'
+	$(Q)$(MAKE) -C optee_client
+
+clean-optee-client:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C optee_client clean
 
