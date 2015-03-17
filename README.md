@@ -38,7 +38,8 @@ $ sudo apt-get install \
 
 ### 2. How to build
 ```
-$ make
+$ git submodule update --init
+$ make -j8
 ```
 
 ### 3. How to flash the firmware onto the board
