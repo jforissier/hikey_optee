@@ -19,7 +19,7 @@ _all:
 
 all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
-clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
+clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver clean-optee-client
 
 cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-busybox
 
@@ -349,7 +349,7 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
-	    export TOP=$(PWD) ; \
+	    export TOP=$(PWD) ; export IFTESTS="$(IFTESTS)" ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
 gen_rootfs/filelist-final.txt: .busybox $(aarch64-linux-gnu-gcc)
@@ -412,15 +412,67 @@ clean-optee-linuxdriver:
 # OP-TEE client library and tee-supplicant executable
 #
 
-optee-client-files := optee_client/out/export/lib/libteec.so.1.0 \
-		      optee_client/out/export/bin/tee-supplicant
-
 .PHONY: build-optee-client
-build-optee-client $(optee-client-files): $(aarch64-linux-gnu-gcc)
-	$(ECHO) '  BUILD   build-optee-client'
+build-optee-client: $(aarch64-linux-gnu-gcc)
+	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_client
 
 clean-optee-client:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)$(MAKE) -C optee_client clean
+
+#
+# OP-TEE OS
+#
+
+optee-os-flags := CROSS_PREFIX=arm-linux-gnueabihf PLATFORM=vexpress-fvp
+
+.PHONY: build-optee-os
+build-optee-os:
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C optee_os $(optee-os-flags)
+
+clean-optee-os:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C optee_os $(optee-os-flags) clean
+
+
+#
+# OP-TEE tests (xtest)
+#
+
+ifneq (,$(wildcard optee_test/Makefile))
+
+all: build-optee-test
+
+optee-test-flags := CFG_CROSS_COMPILE="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
+		    CFG_TA_CROSS_COMPILE=arm-linux-gnueabihf- \
+		    CFG_PLATFORM=vexpress CFG_DEV_PATH=$(PWD) \
+		    CFG_ROOTFS_DIR=$(PWD)/out
+
+ifneq ($(filter all build-optee-os,$(MAKECMDGOALS)),)
+optee-test-deps += build-optee-os
+endif
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+optee-test-deps += build-optee-client
+endif
+
+# FIXME: will rebuild all files, even if they are already up-to-date
+.PHONY: build-optee-test
+build-optee-test:: $(optee-test-deps)
+build-optee-test:: $(aarch64-linux-gnu-gcc)
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
+
+# FIXME:
+# No "make clean" in optee_test: fails if optee_os has been cleaned
+# previously.
+clean-optee-test:
+	$(Q)rm -rf out public
+
+else
+
+IFTESTS=\#
+
+endif # if optee_test/Makefile exists
 

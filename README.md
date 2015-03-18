@@ -1,5 +1,7 @@
 This repository contains the software required to boot the HiKey board
-with UEFI: ARM Trusted Firmware, EDK2, Linux kernel, BusyBox.
+with UEFI: ARM Trusted Firmware, EDK2, Linux kernel, BusyBox, OP-TEE.
+Note that OP-TEE OS and tests are not ported to HiKey yet--they are built
+for FVP currently.
 See https://github.com/96boards/documentation/wiki/UEFI for details.
 
 ## Usage
