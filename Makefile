@@ -19,7 +19,9 @@ _all:
 
 all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
-clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver clean-optee-client
+clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
+clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
+clean: clean-optee-client clean-optee-os
 
 cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-busybox
 
@@ -36,9 +38,10 @@ help:
 	@echo "  FIP = $(FIP) with:"
 	@echo "      [BL2 = $(BL2)]"
 	@echo "      [BL31 = $(BL31)]"
+	@echo "      [BL32 = $(BL32)]"
 	@echo "      [BL33 = $(BL33)]"
 	@echo "  NVME = $(NVME)"
-	@echo "      [not built, downloaded from GitHub]"
+	@echo "      [downloaded from GitHub]"
 	@echo "  BOOT-IMG = $(BOOT-IMG)"
 	@echo "      [LINUX = $(LINUX)]"
 	@echo "      [DTB = $(DTB)]"
@@ -179,10 +182,16 @@ ATF = arm-trusted-firmware/build/hikey/release
 BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
 BL31 = $(ATF)/bl31.bin
+# Uncomment to include OP-TEE OS image in fip.bin
+#BL32 = optee_os/out/arm32-plat-vexpress/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS = PLAT=hikey
-ARMTF_EXPORTS = BL33=$(PWD)/$(BL33) CFLAGS="-O2"
+ARMTF_FLAGS := PLAT=hikey
+ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) CFLAGS="-O2"
+ifneq (,$(BL32))
+ARMTF_FLAGS += PLAT_TSP_LOCATION=dram SPD=opteed DEBUG=1
+ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
+endif
 
 define arm-tf-make
         $(ECHO) '  BUILD   build-$(strip $(1)) [$@]'
@@ -209,7 +218,9 @@ endif
 ifneq ($(filter all build-bl31,$(MAKECMDGOALS)),)
 tf-deps += build-bl31
 endif
-# BL32 is secure OS: not yet implemented
+ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
+tf-deps += build-bl32
+endif
 ifneq ($(filter all build-bl33,$(MAKECMDGOALS)),)
 tf-deps += build-bl33
 endif
@@ -426,6 +437,9 @@ clean-optee-client:
 #
 
 optee-os-flags := CROSS_PREFIX=arm-linux-gnueabihf PLATFORM=vexpress-fvp
+
+.PHONY: build-bl32
+build-bl32: build-optee-os
 
 .PHONY: build-optee-os
 build-optee-os:
