@@ -4,3 +4,5 @@
 /nvme.img
 /boot.img
 /initramfs.cpio.gz
+/out
+/public
