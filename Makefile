@@ -458,6 +458,7 @@ clean-optee-os:
 ifneq (,$(wildcard optee_test/Makefile))
 
 all: build-optee-test
+clean: clean-optee-test
 
 optee-test-flags := CFG_CROSS_COMPILE="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
 		    CFG_TA_CROSS_COMPILE=arm-linux-gnueabihf- \
