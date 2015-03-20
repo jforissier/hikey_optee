@@ -21,7 +21,7 @@ all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
-clean: clean-optee-client clean-optee-os
+clean: clean-optee-client clean-bl32
 
 cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-busybox
 
@@ -437,17 +437,15 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_PREFIX=arm-linux-gnueabihf PLATFORM=vexpress-fvp
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=vexpress-fvp
 
 .PHONY: build-bl32
-build-bl32: build-optee-os
-
-.PHONY: build-optee-os
-build-optee-os:
+build-bl32:
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_os $(optee-os-flags)
 
-clean-optee-os:
+.PHONY: clean-bl32
+clean-bl32:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)$(MAKE) -C optee_os $(optee-os-flags) clean
 
@@ -466,8 +464,8 @@ optee-test-flags := CFG_CROSS_COMPILE="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/
 		    CFG_PLATFORM=vexpress CFG_DEV_PATH=$(PWD) \
 		    CFG_ROOTFS_DIR=$(PWD)/out
 
-ifneq ($(filter all build-optee-os,$(MAKECMDGOALS)),)
-optee-test-deps += build-optee-os
+ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
+optee-test-deps += build-bl32
 endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 optee-test-deps += build-optee-client
