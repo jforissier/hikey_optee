@@ -184,11 +184,8 @@ BL31 = $(ATF)/bl31.bin
 #BL32 = optee_os/out/arm32-plat-vexpress/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-# TODO: remove -fno-delete-null-pointer-checks when not needed anymore
-# It is currently needed with GCC 4.9, and until the ARM TF code is
-# modified. See https://github.com/96boards/arm-trusted-firmware/pull/5.
-ARMTF_FLAGS := PLAT=hikey
-ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) CFLAGS="-fno-delete-null-pointer-checks"
+ARMTF_FLAGS := PLAT=hikey #LOG_LEVEL=50
+ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=dram SPD=opteed DEBUG=1
 ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
