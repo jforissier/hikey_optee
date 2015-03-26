@@ -181,7 +181,7 @@ BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
 BL31 = $(ATF)/bl31.bin
 # Uncomment to include OP-TEE OS image in fip.bin
-#BL32 = optee_os/out/arm32-plat-vexpress/core/tee.bin
+#BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
 ARMTF_FLAGS := PLAT=hikey #LOG_LEVEL=50
@@ -434,7 +434,7 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=vexpress-fvp
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey #CFG_TEE_CORE_LOG_LEVEL=3
 
 .PHONY: build-bl32
 build-bl32:
@@ -458,7 +458,7 @@ clean: clean-optee-test
 
 optee-test-flags := CFG_CROSS_COMPILE="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
 		    CFG_TA_CROSS_COMPILE=arm-linux-gnueabihf- \
-		    CFG_PLATFORM=vexpress CFG_DEV_PATH=$(PWD) \
+		    CFG_PLATFORM=hikey CFG_DEV_PATH=$(PWD) \
 		    CFG_ROOTFS_DIR=$(PWD)/out
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
