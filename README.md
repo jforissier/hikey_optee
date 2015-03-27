@@ -63,6 +63,7 @@ sudo cp 51-hikey.rules to /etc/udev/rules.d/
 ```
 
 ### 2. How to build
+
 ```
 # Initialize URLs for git submodules
 git submodule init
@@ -85,11 +86,14 @@ If you have access to the GlobalPlatform "Initial Configuration Test Suite"
 it under optee_test and it will be included automatically. If you later
 remove the directory, be sure to clean optee_test (git reset --hard HEAD).
 
+Refer to `make help` for details.
+
 ### 3. How to flash the firmware onto the board
 
-Refer to:
+Switch to recovery mode (J15 pins 1-2 closed 3-4 closed 5-6 open),
+power up the board and run:
 ```
-make help
+make flash
 ```
 
 ### 4. How to run OP-TEE tests (xtest)

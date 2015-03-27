@@ -39,3 +39,6 @@
 [submodule "grub"]
 	path = grub
 	url = git://git.savannah.gnu.org/grub.git
+[submodule "strace"]
+	path = strace
+	url = git://git.code.sf.net/p/strace/code

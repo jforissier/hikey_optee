@@ -18,6 +18,9 @@ NSU ?= 64
 # Secure kernel (OP-TEE OS): 32 or 64bit
 SK ?= 64
 
+# Uncomment to enable
+#WITH_STRACE ?= 1
+
 .PHONY: _all
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
@@ -55,6 +58,9 @@ help:
 	@echo "      [GRUB = $(GRUB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)], contains:"
 	@echo "          [busybox/*]"
+	@if [ $(WITH_STRACE) ]; then \
+		echo "          [STRACE = $(STRACE)]"; \
+	 fi
 	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
@@ -453,6 +459,11 @@ endif
 ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-test
 endif
+ifeq ($(WITH_STRACE),1)
+ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
+initramfs-deps += build-strace
+endif
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -464,7 +475,7 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
-	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; \
+	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; export IFSTRACE=$(IFSTRACE) ; \
 	    export MULTIARCH=$(MULTIARCH) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
@@ -740,16 +751,67 @@ clean-sha-perf:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf sha-perf/out
 
+define fastboot-flash
+$(Q)stderr=$$(fastboot flash $1 $2 2>&1) || echo $${stderr}
+endef
+
 .PHONY: flash
 flash:
 	$(ECHO) '  FLASH   $(LLOADER)'
 	$(Q)sudo python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
 	$(ECHO) '  FLASH   $(PTABLE)'
-	$(Q)fastboot flash ptable $(PTABLE)
+	$(call fastboot-flash,ptable,$(PTABLE))
 	$(ECHO) '  FLASH   $(FIP)'
-	$(Q)fastboot flash fastboot $(FIP)
+	$(call fastboot-flash,fastboot,$(FIP))
 	$(ECHO) '  FLASH   $(NVME)'
-	$(Q)fastboot flash nvme $(NVME)
+	$(call fastboot-flash,nvme,$(NVME))
 	$(ECHO) '  FLASH   $(BOOT-IMG)'
-	$(Q)fastboot flash boot $(BOOT-IMG)
+	$(call fastboot-flash,boot,$(BOOT-IMG))
+
+#
+# strace
+#
+
+ifeq ($(WITH_STRACE),1)
+
+STRACE = strace/strace
+STRACE_EXPORTS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+build-strace $(STRACE): strace/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C strace
+
+.PHONY: FORCE
+.strace_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo $(STRACE_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+strace/Makefile: strace/configure .strace_exports
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(STRACE_EXPORTS) ; \
+	    cd strace ; ./configure --host=$(MULTIARCH)
+
+strace/configure: strace/bootstrap
+	$(ECHO) ' GEN      $@'
+	$(Q)cd strace ; ./bootstrap
+
+.PHONY: clean-strace
+clean-strace:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
+	$(Q)rm -f .strace_exports .strace_exports.new
+
+.PHONY: cleaner-strace
+cleaner-strace:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f strace/Makefile strace/configure
+
+cleaner: cleaner-strace
+
+else
+
+IFSTRACE=\#
+
+endif
 
