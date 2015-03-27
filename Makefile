@@ -23,7 +23,7 @@ clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
 clean: clean-optee-client clean-bl32
 
-cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-busybox
+cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-busybox cleaner-strace
 
 distclean: cleaner distclean-aarch64-gcc distclean-busybox
 
@@ -47,6 +47,7 @@ help:
 	@echo "      [DTB = $(DTB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)]"
 	@echo "          [gen_rootfs/busybox/*]"
+	@echo "          [STRACE = $(STRACE)]"
 	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
@@ -91,6 +92,7 @@ BUSYBOX_URL = http://busybox.net/downloads/busybox-1.23.0.tar.bz2
 BUSYBOX_TARBALL = $(call filename,$(BUSYBOX_URL))
 BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
 
+#AARCH64_GCC_URL = http://releases.linaro.org/14.04/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.8-2014.04_linux.tar.xz
 AARCH64_GCC_URL = http://releases.linaro.org/14.08/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.08_linux.tar.xz
 AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
@@ -133,9 +135,9 @@ downloads/$(BUSYBOX_TARBALL):
 
 cleaner-busybox:
 	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf gen_rootfs/$(BUSYBOX_DIR) .busybox
+	$(Q)rm -rf gen_rootfs/$(BUSYBOX_DIR) gen_rootfs/busybox .busybox
 
-disctlean-busybox:
+distclean-busybox:
 	$(ECHO) '  DISTCL  $@'
 	$(Q)rm -f downloads/$(BUSYBOX_TARBALL)
 
@@ -184,7 +186,7 @@ BL31 = $(ATF)/bl31.bin
 #BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS := PLAT=hikey #LOG_LEVEL=50
+ARMTF_FLAGS := PLAT=hikey LOG_LEVEL=50
 ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=dram SPD=opteed
@@ -347,6 +349,9 @@ endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-client
 endif
+ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
+initramfs-deps += build-strace
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -434,7 +439,7 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey #CFG_TEE_CORE_LOG_LEVEL=3
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey CFG_TEE_CORE_LOG_LEVEL=4
 
 .PHONY: build-bl32
 build-bl32:
@@ -486,4 +491,33 @@ else
 IFTESTS=\#
 
 endif # if optee_test/Makefile exists
+
+#
+# strace
+#
+
+STRACE = strace/strace
+STRACE_EXPORTS := CC='$(CROSS_COMPILE)gcc' LD='$(CROSS_COMPILE)ld'
+
+build-strace $(STRACE): strace/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C strace
+
+strace/Makefile: strace/configure
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(STRACE_EXPORTS) ; \
+	    cd strace ; ./configure --host=aarch64-linux-gnu
+
+strace/configure: strace/bootstrap
+	$(ECHO) ' GEN      $@'
+	$(Q)cd strace ; ./bootstrap
+
+.PHONY: clean-strace
+clean-strace:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
+
+cleaner-strace:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f strace/Makefile strace/configure
 

@@ -31,3 +31,6 @@ ${IFTESTS}file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta ${TOP}/ou
 ${IFTESTS}file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta ${TOP}/out/utest/user_ta/armv7/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
 ${IFTESTS}file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta ${TOP}/out/utest/user_ta/armv7/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
 
+# strace tool
+file /bin/strace ${TOP}/strace/strace 755 0 0
+

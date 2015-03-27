@@ -31,3 +31,6 @@
 [submodule "optee_os"]
 	path = optee_os
 	url = https://github.com/jforissier/optee_os.git
+[submodule "strace"]
+	path = strace
+	url = git://git.code.sf.net/p/strace/code

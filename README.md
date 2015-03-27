@@ -35,7 +35,8 @@ As for software:
 $ sudo apt-get install \
     gcc-arm-linux-gnueabihf \
     python-serial \
-    gdisk
+    gdisk \
+    autoconf
 ```
 
 ### 2. How to build
