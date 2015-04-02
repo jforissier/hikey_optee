@@ -6,3 +6,4 @@
 /initramfs.cpio.gz
 /out
 /public
+/cmdline

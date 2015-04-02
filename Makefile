@@ -93,7 +93,8 @@ BUSYBOX_TARBALL = $(call filename,$(BUSYBOX_URL))
 BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
 
 #AARCH64_GCC_URL = http://releases.linaro.org/14.04/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.8-2014.04_linux.tar.xz
-AARCH64_GCC_URL = http://releases.linaro.org/14.08/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.08_linux.tar.xz
+#AARCH64_GCC_URL = http://releases.linaro.org/14.08/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.08_linux.tar.xz
+AARCH64_GCC_URL = http://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux.tar.xz
 AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
 aarch64-linux-gnu-gcc := toolchains/$(AARCH64_GCC_DIR)
@@ -110,9 +111,9 @@ downloads/$(AARCH64_GCC_TARBALL):
 
 toolchains/$(AARCH64_GCC_DIR): downloads/$(AARCH64_GCC_TARBALL)
 	$(ECHO) '  TAR     $@'
-	$(Q)rm -rf toolchains/$(AARCH64_GCC_DIR)
-	$(Q)cd toolchains && tar xf ../downloads/$(AARCH64_GCC_TARBALL)
-	$(Q)touch $@
+	@#$(Q)rm -rf toolchains/$(AARCH64_GCC_DIR)
+	@#$(Q)cd toolchains && tar xf ../downloads/$(AARCH64_GCC_TARBALL)
+	@#$(Q)touch $@
 
 cleaner-aarch64-gcc:
 	$(ECHO) '  CLEANER $@'
@@ -178,18 +179,18 @@ clean-edk2-basetools:
 # ARM Trusted Firmware
 #
 
-ATF = arm-trusted-firmware/build/hikey/release
+ATF = arm-trusted-firmware/build/hikey/debug
 BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
 BL31 = $(ATF)/bl31.bin
 # Uncomment to include OP-TEE OS image in fip.bin
-#BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
+BL32 = optee_os/out/arm32-plat-hisi/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS := PLAT=hikey LOG_LEVEL=50
+ARMTF_FLAGS := PLAT=hikey LOG_LEVEL=50 DEBUG=1 V=1 CRASH_REPORTING=1
 ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
-ARMTF_FLAGS += PLAT_TSP_LOCATION=dram SPD=opteed
+ARMTF_FLAGS += PLAT_TSP_LOCATION=tdram SPD=opteed
 ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
 endif
 
@@ -229,11 +230,12 @@ endif
 build-fip:: $(tf-deps)
 build-fip $(FIP)::
 	$(call arm-tf-make, fip)
+	$(Q)cp $(FIP) /media/sf_dnld/96b/my/
 
 clean-bl1-bl2-bl31-fip:
 	$(ECHO) '  CLEAN   edk2/BaseTools'
 	$(Q)export $(ARMTF_EXPORTS) ; \
-	    $(MAKE) -C arm-trusted-firmware $(ARMTF_FLAGS) clean
+	    $(MAKE) -C arm-trusted-firmware $(ARMTF_FLAGS) clean realclean
 
 #
 # l-loader
@@ -282,7 +284,7 @@ DTB = linux/arch/arm64/boot/dts/hi6220-hikey.dtb
 .PHONY: build-linux
 build-linux $(LINUX): linux/.config $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   build-linux'
-	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image
+	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image modules dtbs
 
 build-dtb $(DTB): linux/.config
 	$(ECHO) '  BUILD   build-dtb'
@@ -324,14 +326,17 @@ build-boot-img $(BOOT-IMG)::
 	$(ECHO) '  GEN    $(BOOT-IMG)'
 	$(Q)sudo -p "[sudo] Password:" true
 	$(Q)if [ -d .tmpbootimg ] ; then sudo rm -rf .tmpbootimg ; fi
+	$(Q)echo "console=tty0 console=ttyAMA0,115200n8 root=/dev/mmcblk0p7 rootwait rw initrd=initrd.img dtb=hi6220-hikey.dtb earlycon=pl011,0xf8015000" > cmdline
 	$(Q)mkdir -p .tmpbootimg
 	$(Q)dd if=/dev/zero of=$(BOOT-IMG) bs=512 count=131072 status=none
 	$(Q)sudo mkfs.fat -n "BOOT IMG" $(BOOT-IMG) >/dev/null
 	$(Q)sudo mount -o loop,rw,sync $(BOOT-IMG) .tmpbootimg
 	$(Q)sudo cp $(LINUX) $(DTB) .tmpbootimg
 	$(Q)sudo cp $(INITRAMFS) .tmpbootimg/initrd.img
+	$(Q)sudo cp cmdline .tmpbootimg
 	$(Q)sudo umount .tmpbootimg
 	$(Q)sudo rm -rf .tmpbootimg
+	$(Q)mv $(BOOT-IMG) /media/sf_dnld/96b/my/boot-me.img
 
 clean-boot-img:
 	$(ECHO) '  CLEAN   $@'
@@ -439,7 +444,7 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey CFG_TEE_CORE_LOG_LEVEL=4
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hisi CFG_TEE_CORE_LOG_LEVEL=4
 
 .PHONY: build-bl32
 build-bl32:
@@ -450,7 +455,7 @@ build-bl32:
 clean-bl32:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)$(MAKE) -C optee_os $(optee-os-flags) clean
-
+	$(Q)rm -rf optee_os/out
 
 #
 # OP-TEE tests (xtest)
@@ -463,7 +468,7 @@ clean: clean-optee-test
 
 optee-test-flags := CFG_CROSS_COMPILE="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
 		    CFG_TA_CROSS_COMPILE=arm-linux-gnueabihf- \
-		    CFG_PLATFORM=hikey CFG_DEV_PATH=$(PWD) \
+		    CFG_PLATFORM=hisi CFG_DEV_PATH=$(PWD) \
 		    CFG_ROOTFS_DIR=$(PWD)/out
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
