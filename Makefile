@@ -178,7 +178,12 @@ clean-edk2-basetools:
 # ARM Trusted Firmware
 #
 
+ATF_DEBUG = 1
+ifeq ($(ATF_DEBUG),1)
+ATF = arm-trusted-firmware/build/hikey/debug
+else
 ATF = arm-trusted-firmware/build/hikey/release
+endif
 BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
 BL31 = $(ATF)/bl31.bin
@@ -186,7 +191,7 @@ BL31 = $(ATF)/bl31.bin
 #BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS := PLAT=hikey LOG_LEVEL=50
+ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) LOG_LEVEL=40
 ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=dram SPD=opteed
