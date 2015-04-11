@@ -293,7 +293,7 @@ build-dtb $(DTB): linux/.config
 	$(ECHO) '  BUILD   build-dtb'
 	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= dtbs
 
-linux/.config:
+linux/.config: kernel.config
 	$(ECHO) '  BUILD   $@'
 	$(Q)cd linux && ARCH=arm64 scripts/kconfig/merge_config.sh \
 	    arch/arm64/configs/defconfig ../kernel.config
@@ -353,6 +353,11 @@ initramfs-deps += build-optee-linuxdriver
 endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-client
+endif
+ifneq (,$(wildcard optee_test/Makefile))
+ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
+initramfs-deps += build-optee-test
+endif
 endif
 ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
 initramfs-deps += build-strace
