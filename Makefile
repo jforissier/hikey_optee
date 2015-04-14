@@ -17,13 +17,13 @@ endif
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
 
-all: build-lloader build-fip build-boot-img build-nvme build-mcuimage build-ptable
+all: build-lloader build-fip build-boot-img build-nvme build-bl30 build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
 clean: clean-optee-client clean-bl32
 
-cleaner: clean cleaner-nvme cleaner-mcuimage cleaner-aarch64-gcc cleaner-busybox cleaner-strace
+cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-busybox cleaner-strace
 
 distclean: cleaner distclean-aarch64-gcc distclean-busybox
 
@@ -37,6 +37,7 @@ help:
 	@echo "  PTABLE = $(PTABLE)"
 	@echo "  FIP = $(FIP) with:"
 	@echo "      [BL2 = $(BL2)]"
+	@echo "      [BL30 = $(BL30)]"
 	@echo "      [BL31 = $(BL31)]"
 	@echo "      [BL32 = $(BL32)]"
 	@echo "      [BL33 = $(BL33)]"
@@ -77,7 +78,6 @@ help:
 	@echo "  # Or, on the board: dd if=/tmp/fip.bin of=/dev/mmcblk0p4"
 	@echo "  fastboot flash fastboot $(FIP)"
 	@echo "  fastboot flash nvme $(NVME)"
-	@echo "  fastboot flash mcuimage $(MCUIMAGE)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
 	@echo "  # Set J15 pins 1-2 closed 3-4 open 5-6 open (boot from eMMC)"
 
@@ -191,13 +191,14 @@ ATF = arm-trusted-firmware/build/hikey/release
 endif
 BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
+BL30 = mcuimage.bin
 BL31 = $(ATF)/bl31.bin
 # Uncomment to include OP-TEE OS image in fip.bin
 BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
 ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) LOG_LEVEL=40
-ARMTF_EXPORTS := BL33=$(PWD)/$(BL33) #CFLAGS=""
+ARMTF_EXPORTS := NEED_BL30=yes BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=tdram SPD=opteed
 ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
@@ -224,6 +225,9 @@ build-bl31 $(BL31): $(aarch64-linux-gnu-gcc)
 
 ifneq ($(filter all build-bl2,$(MAKECMDGOALS)),)
 tf-deps += build-bl2
+endif
+ifneq ($(filter all build-bl30,$(MAKECMDGOALS)),)
+tf-deps += build-bl30
 endif
 ifneq ($(filter all build-bl31,$(MAKECMDGOALS)),)
 tf-deps += build-bl31
@@ -409,20 +413,18 @@ cleaner-nvme:
 	$(Q)rm -f $(NVME)
 
 #
-# Download mcuimage.bin
+# Download mcuimage.bin (packaged as BL30 in FIP)
 #
 
-MCUIMAGE = mcuimage.bin
+.PHONY: build-bl30
+build-bl30: $(BL30)
 
-.PHONY: build-mcuimage
-build-mcuimage: $(MCUIMAGE)
+$(BL30):
+	$(CURL) https://builds.96boards.org/releases/hikey/mcuimage.bin -o $(BL30)
 
-$(MCUIMAGE):
-	$(CURL) https://builds.96boards.org/releases/hikey/mcuimage.bin -o $(MCUIMAGE)
-
-cleaner-mcuimage:
-	$(ECHO) '  CLEANER $(MCUIMAGE)'
-	$(Q)rm -f $(MCUIMAGE)
+cleaner-bl30:
+	$(ECHO) '  CLEANER $(BL30)'
+	$(Q)rm -f $(BL30)
 
 #
 # OP-TEE Linux driver
