@@ -22,14 +22,14 @@ slink /lib/aarch64-linux-gnu/libteec.so.1 libteec.so.1.0 755 0 0
 slink /lib/aarch64-linux-gnu/libteec.so libteec.so.1 755 0 0
 
 # OP-TEE tests
-${IFTESTS}file /bin/xtest ${TOP}/out/utest/host/xtest/bin/xtest 755 0 0
+${IFTESTS}file /bin/xtest ${TOP}/optee_test/out/xtest/xtest 755 0 0
 ${IFTESTS}dir /lib/optee_armtz 755 0 0
-${IFTESTS}file /lib/optee_armtz/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta ${TOP}/out/utest/user_ta/armv7/rpc_test/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta 444 0 0
-${IFTESTS}file /lib/optee_armtz/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta ${TOP}/out/utest/user_ta/armv7/crypt/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta 444 0 0
-${IFTESTS}file /lib/optee_armtz/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta ${TOP}/out/utest/user_ta/armv7/storage/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta 444 0 0
-${IFTESTS}file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta ${TOP}/out/utest/user_ta/armv7/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta 444 0 0
-${IFTESTS}file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta ${TOP}/out/utest/user_ta/armv7/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
-${IFTESTS}file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta ${TOP}/out/utest/user_ta/armv7/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta ${TOP}/optee_test/out/ta/rpc_test/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta ${TOP}/optee_test/out/ta/crypt/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta ${TOP}/optee_test/out/ta/storage/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta ${TOP}/optee_test/out/ta/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta ${TOP}/optee_test/out/ta/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
+${IFTESTS}file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta ${TOP}/optee_test/out/ta/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
 
 # strace tool
 file /bin/strace ${TOP}/strace/strace 755 0 0
