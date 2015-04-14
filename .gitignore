@@ -1,6 +1,7 @@
 /.busybox
 /.edk2basetools
 /.linuxbuildinprogress
+/mcuimage.bin
 /nvme.img
 /boot.img
 /initramfs.cpio.gz
