@@ -193,8 +193,8 @@ BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
 BL30 = mcuimage.bin
 BL31 = $(ATF)/bl31.bin
-# Uncomment to include OP-TEE OS image in fip.bin
-BL32 = optee_os/out/arm32-plat-hikey/core/tee.bin
+# Comment to not include OP-TEE OS image in fip.bin
+BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
 ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) LOG_LEVEL=40
