@@ -183,7 +183,7 @@ clean-edk2-basetools:
 # ARM Trusted Firmware
 #
 
-ATF_DEBUG = 1
+ATF_DEBUG = 0
 ifeq ($(ATF_DEBUG),1)
 ATF = arm-trusted-firmware/build/hikey/debug
 else
@@ -197,7 +197,7 @@ BL31 = $(ATF)/bl31.bin
 BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) LOG_LEVEL=40
+ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) #LOG_LEVEL=40
 ARMTF_EXPORTS := NEED_BL30=yes BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=tdram SPD=opteed
@@ -472,7 +472,7 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey #CFG_TEE_CORE_LOG_LEVEL=4 #CFG_TEE_TA_LOG_LEVEL=3
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey DEBUG=0 #CFG_TEE_CORE_LOG_LEVEL=4 #CFG_TEE_TA_LOG_LEVEL=3
 
 .PHONY: build-bl32
 build-bl32:
