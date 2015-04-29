@@ -32,20 +32,38 @@ On the hardware side, you need:
 
 As for software:
 ```
-$ sudo apt-get install \
-    gcc-arm-linux-gnueabihf \
-    python-serial \
+sudo apt-get install \
+    android-tools-fastboot \
+    autoconf \
     gdisk \
-    autoconf
+    gcc-arm-linux-gnueabihf \
+    python-serial
+```
+
+Also, to get the USB devices recognized properly (i.e., the HiKey board in
+recovery mode will show up as /dev/HiKey and fastboot will properly detect
+the board):
+
+```
+sudo cp 51-hikey.rules to /etc/udev/rules.d/
 ```
 
 ### 2. How to build
 ```
-$ git submodule update --init
-$ make -j8
+git submodule update --init
+make -j8
 ```
 
 ### 3. How to flash the firmware onto the board
 ```
 $ make help
+```
+
+### 4. How to run OP-TEE tests (xtest)
+
+On the HiKey console:
+```
+modprobe optee_armtz
+tee-supplicant&
+xtest
 ```

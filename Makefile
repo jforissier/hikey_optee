@@ -72,10 +72,8 @@ help:
 	@echo
 	@echo "Flashing micro-howto:"
 	@echo "  # Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
-	@echo "  sudo python burn-boot/hisi-idt.py -d /dev/ttyUSB1 --img1=$(LLOADER)"
-	@echo "  # It takes a few seconds before fastboot is ready on the USB port"
+	@echo "  sudo python burn-boot/hisi-idt.py -d /dev/HiKey --img1=$(LLOADER)"
 	@echo "  fastboot flash ptable $(PTABLE)"
-	@echo "  # Or, on the board: dd if=/tmp/fip.bin of=/dev/mmcblk0p4"
 	@echo "  fastboot flash fastboot $(FIP)"
 	@echo "  fastboot flash nvme $(NVME)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
@@ -197,7 +195,8 @@ BL31 = $(ATF)/bl31.bin
 BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
-ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG) #LOG_LEVEL=40
+ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG)
+#ARMTF_FLAGS += LOG_LEVEL=40
 ARMTF_EXPORTS := NEED_BL30=yes BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += PLAT_TSP_LOCATION=tdram SPD=opteed
@@ -472,7 +471,11 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey DEBUG=0 #CFG_TEE_CORE_LOG_LEVEL=4 #CFG_TEE_TA_LOG_LEVEL=3
+optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey
+optee-os-flags += DEBUG=0
+optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
+#optee-os-flags += CFG_WITH_PAGER=y
+#optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 
 .PHONY: build-bl32
 build-bl32:
