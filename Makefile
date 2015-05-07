@@ -497,8 +497,8 @@ ifneq (,$(wildcard optee_test/Makefile))
 all: build-optee-test
 clean: clean-optee-test
 
-optee-test-flags := CROSS_COMPILE_HOST="$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
-		    CROSS_COMPILE_TA=arm-linux-gnueabihf- \
+optee-test-flags := CROSS_COMPILE_HOST="$(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
+		    CROSS_COMPILE_TA="$(CCACHE)arm-linux-gnueabihf-" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 
