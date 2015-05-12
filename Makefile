@@ -101,6 +101,9 @@ AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
 aarch64-linux-gnu-gcc := toolchains/$(AARCH64_GCC_DIR)
 
+arm-linux-gnueabihf- ?= arm-linux-gnueabihf-
+#arm-linux-gnueabihf- ?= ~/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux/bin/arm-linux-gnueabihf-
+
 export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-
 
 #
@@ -471,11 +474,24 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=hikey
+optee-os-flags := CROSS_COMPILE="$(CCACHE)$(arm-linux-gnueabihf-)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 #optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
+
+# 64-bit TEE Core
+# FIXME: issue with GCC 4.9: xtest 4002 hangs when:
+# - TEE Core is 64-bit (OPTEE_64BIT=1 below) and compiler is aarch64-linux-gnu-gcc
+#   4.9.2-10ubuntu13, and
+# - DEBUG=0, and
+# - 32-bit user libraries are built with arm-linux-gnueabihf-gcc 4.9.2-10ubuntu10
+# Set DEBUG=1 or build user code with GCC 4.8 (arm-linux-gnueabihf-gcc version
+# linaro-1.13.1-4.8-2013.08) and the problem disappears.
+OPTEE_64BIT ?= 0
+ifeq ($(OPTEE_64BIT),1)
+optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
+endif
 
 .PHONY: build-bl32
 build-bl32:
@@ -498,7 +514,7 @@ all: build-optee-test
 clean: clean-optee-test
 
 optee-test-flags := CROSS_COMPILE_HOST="$(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
-		    CROSS_COMPILE_TA="$(CCACHE)arm-linux-gnueabihf-" \
+		    CROSS_COMPILE_TA="$(CCACHE)$(arm-linux-gnueabihf-)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 

@@ -52,6 +52,8 @@ git submodule update --init
 make -j8
 ```
 
+For 64-bit TEE Core, use `OPTEE_64BIT=1`.
+
 ### 3. How to flash the firmware onto the board
 ```
 $ make help
