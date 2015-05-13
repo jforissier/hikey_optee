@@ -481,13 +481,17 @@ optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 
 # 64-bit TEE Core
-# FIXME: issue with GCC 4.9: xtest 4002 hangs when:
+# FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
 # - TEE Core is 64-bit (OPTEE_64BIT=1 below) and compiler is aarch64-linux-gnu-gcc
 #   4.9.2-10ubuntu13, and
 # - DEBUG=0, and
 # - 32-bit user libraries are built with arm-linux-gnueabihf-gcc 4.9.2-10ubuntu10
-# Set DEBUG=1 or build user code with GCC 4.8 (arm-linux-gnueabihf-gcc version
-# linaro-1.13.1-4.8-2013.08) and the problem disappears.
+# Set DEBUG=1, or set $(arm-linux-gnueabihf-) to build user code with:
+#   'arm-linux-gnueabihf-gcc (crosstool-NG linaro-1.13.1-4.8-2013.08 - Linaro GCC 2013.08)
+#    4.8.2 20130805 (prerelease)'
+# or with:
+#   'arm-linux-gnueabihf-gcc (Linaro GCC 2014.11) 4.9.3 20141031 (prerelease)'
+# and the problem disappears.
 OPTEE_64BIT ?= 0
 ifeq ($(OPTEE_64BIT),1)
 optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
