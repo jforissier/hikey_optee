@@ -23,9 +23,9 @@ clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
 clean: clean-optee-client clean-bl32
 
-cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-busybox cleaner-strace
+cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox cleaner-strace
 
-distclean: cleaner distclean-aarch64-gcc distclean-busybox
+distclean: cleaner distclean-aarch64-gcc distclean-arm-gcc distclean-busybox
 
 help:
 	@echo "Makefile for HiKey board UEFI firmware/kernel"
@@ -95,16 +95,29 @@ BUSYBOX_URL = http://busybox.net/downloads/busybox-1.23.0.tar.bz2
 BUSYBOX_TARBALL = $(call filename,$(BUSYBOX_URL))
 BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
 
-#AARCH64_GCC_URL = http://releases.linaro.org/14.04/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.8-2014.04_linux.tar.xz
+#
+# Aarch64 toolchain
+#
 AARCH64_GCC_URL = http://releases.linaro.org/14.08/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.08_linux.tar.xz
 AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
+# If you don't want to download the aarch64 toolchain, comment out
+# the next line and set CROSS_COMPILE to your compiler command
 aarch64-linux-gnu-gcc := toolchains/$(AARCH64_GCC_DIR)
-
-arm-linux-gnueabihf- ?= arm-linux-gnueabihf-
-#arm-linux-gnueabihf- ?= ~/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux/bin/arm-linux-gnueabihf-
-
 export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-
+#export CROSS_COMPILE ?= $(CCACHE)aarch64-linux-gnu-
+
+#
+# Aarch32 toolchain
+#
+ARM_GCC_URL = https://releases.linaro.org/15.02/components/toolchain/binaries/arm-linux-gnueabihf/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf.tar.xz
+ARM_GCC_TARBALL = $(call filename,$(ARM_GCC_URL))
+ARM_GCC_DIR = $(ARM_GCC_TARBALL:.tar.xz=)
+# If you don't want to download the aarch32 toolchain, comment out
+# the next line and set CROSS_COMPILE32 to your compiler command
+arm-linux-gnueabihf-gcc := toolchains/$(ARM_GCC_DIR)
+CROSS_COMPILE32 ?= $(CCACHE)$(PWD)/toolchains/$(ARM_GCC_DIR)/bin/arm-linux-gnueabihf-
+#CROSS_COMPILE32 ?= $(CCACHE)arm-linux-gnueabihf-
 
 #
 # Download rules
@@ -127,6 +140,24 @@ cleaner-aarch64-gcc:
 distclean-aarch64-gcc:
 	$(ECHO) '  DISTCL  $@'
 	$(Q)rm -f downloads/$(AARCH64_GCC_TARBALL)
+
+downloads/$(ARM_GCC_TARBALL):
+	$(ECHO) '  CURL    $@'
+	$(Q)$(CURL) $(ARM_GCC_URL) -o $@
+
+toolchains/$(ARM_GCC_DIR): downloads/$(ARM_GCC_TARBALL)
+	$(ECHO) '  TAR     $@'
+	$(Q)rm -rf toolchains/$(ARM_GCC_DIR)
+	$(Q)cd toolchains && tar xf ../downloads/$(ARM_GCC_TARBALL)
+	$(Q)touch $@
+
+cleaner-arm-gcc:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -rf toolchains/$(ARM_GCC_DIR)
+
+distclean-arm-gcc:
+	$(ECHO) '  DISTCL  $@'
+	$(Q)rm -f downloads/$(ARM_GCC_TARBALL)
 
 .busybox: downloads/$(BUSYBOX_TARBALL)
 	$(ECHO) '  TAR     gen_rootfs/busybox'
@@ -156,7 +187,8 @@ BL33 = edk2/Build/HiKey/RELEASE_GCC49/FV/BL33_AP_UEFI.fd
 EDK2_VARS = EDK2_ARCH=AARCH64 EDK2_DSC=HisiPkg/HiKeyPkg/HiKey.dsc EDK2_TOOLCHAIN=GCC49 EDK2_BUILD=RELEASE
 
 .PHONY: build-bl33
-build-bl33 $(BL33): .edk2basetools $(aarch64-linux-gnu-gcc)
+build-bl33:: $(aarch64-linux-gnu-gcc)
+build-bl33 $(BL33):: .edk2basetools
 	$(ECHO) '  BUILD   build-bl33'
 	$(Q)set -e ; cd edk2 ; export GCC49_AARCH64_PREFIX='"$(CROSS_COMPILE)"' ; \
 	    . edksetup.sh ; \
@@ -296,11 +328,13 @@ LINUX = linux/arch/arm64/boot/Image
 DTB = linux/arch/arm64/boot/dts/hi6220-hikey.dtb
 
 .PHONY: build-linux
-build-linux $(LINUX): linux/.config $(aarch64-linux-gnu-gcc)
+build-linux:: $(aarch64-linux-gnu-gcc)
+build-linux $(LINUX):: linux/.config
 	$(ECHO) '  BUILD   build-linux'
 	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image
 
-build-dtb $(DTB): linux/.config
+build-dtb:: $(aarch64-linux-gnu-gcc)
+build-dtb $(DTB):: linux/.config
 	$(ECHO) '  BUILD   build-dtb'
 	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= dtbs
 
@@ -474,7 +508,7 @@ clean-optee-client:
 # OP-TEE OS
 #
 
-optee-os-flags := CROSS_COMPILE="$(CCACHE)$(arm-linux-gnueabihf-)" PLATFORM=hikey
+optee-os-flags := CROSS_COMPILE="$(CROSS_COMPILE32)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
@@ -498,7 +532,8 @@ optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
 endif
 
 .PHONY: build-bl32
-build-bl32:
+build-bl32:: $(aarch64-linux-gnu-gcc) $(arm-linux-gnueabihf-gcc)
+build-bl32::
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_os $(optee-os-flags)
 
@@ -517,8 +552,8 @@ ifneq (,$(wildcard optee_test/Makefile))
 all: build-optee-test
 clean: clean-optee-test
 
-optee-test-flags := CROSS_COMPILE_HOST="$(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-" \
-		    CROSS_COMPILE_TA="$(CCACHE)$(arm-linux-gnueabihf-)" \
+optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
+		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 
@@ -556,7 +591,8 @@ endif # if optee_test/Makefile exists
 STRACE = strace/strace
 STRACE_EXPORTS := CC='$(CROSS_COMPILE)gcc' LD='$(CROSS_COMPILE)ld'
 
-build-strace $(STRACE): strace/Makefile
+build-strace:: $(aarch64-linux-gnu-gcc)
+build-strace $(STRACE):: strace/Makefile
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C strace
 
