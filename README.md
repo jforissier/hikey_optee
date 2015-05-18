@@ -1,6 +1,12 @@
 This repository contains the software required to boot the HiKey board
-with UEFI: ARM Trusted Firmware, EDK2, Linux kernel, BusyBox, OP-TEE.
-See https://github.com/96boards/documentation/wiki/UEFI for details.
+with OP-TEE:
+- ARM Trusted Firmware
+- EDK2
+- Linux kernel
+- BusyBox
+- OP-TEE (OS, driver, client library)
+- OP-TEE tests (subject to repository access)
+
 
 ## Usage
 
@@ -9,9 +15,7 @@ See https://github.com/96boards/documentation/wiki/UEFI for details.
 On the hardware side, you need:
 - A [HiKey board](https://www.96boards.org/products/hikey/)
 - A power supply (8 - 18V, 2A, 1.7mm jack)
-- A PC running Linux (I use Ubuntu 14.10)
-- A HDMI monitor
-- A HDMI cable (full size)
+- A PC running Linux (I use Ubuntu 15.04 x86_64)
 - A USB cable (male/male, A to micro-B) to connect your PC to the board
 - A serial to USB adapter cable to connect to the SoC's UART0 (console).
   This  is not strictly required but chances are you won't be able to
@@ -34,13 +38,15 @@ sudo apt-get install \
     android-tools-fastboot \
     autoconf \
     gdisk \
-    gcc-arm-linux-gnueabihf \
     python-serial
 ```
 
+"Known good" cross compilers/toolchains are downloaded aytomatically from
+linaro.org by the Makefile.
+
 Also, to get the USB devices recognized properly (i.e., the HiKey board in
 recovery mode will show up as /dev/HiKey and fastboot will properly detect
-the board):
+the board), just do:
 
 ```
 sudo cp 51-hikey.rules to /etc/udev/rules.d/
@@ -52,11 +58,15 @@ git submodule update --init
 make -j8
 ```
 
-For 64-bit TEE Core, use `OPTEE_64BIT=1`.
+For 64-bit TEE Core, use `make -j8 OPTEE_64BIT=1`.
+If you don't have access to the optee_test repository, you can still clone
+all other submodules and build without the tests.
 
 ### 3. How to flash the firmware onto the board
+
+Refer to:
 ```
-$ make help
+make help
 ```
 
 ### 4. How to run OP-TEE tests (xtest)
