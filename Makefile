@@ -439,7 +439,7 @@ NVME = nvme.img
 build-nvme: $(NVME)
 
 $(NVME):
-	$(CURL) https://builds.96boards.org/releases/hikey/nvme.img -o $(NVME)
+	$(CURL) https://builds.96boards.org/releases/hikey/linaro/binaries/15.05/nvme.img -o $(NVME)
 
 cleaner-nvme:
 	$(ECHO) '  CLEANER $(NVME)'
@@ -453,7 +453,7 @@ cleaner-nvme:
 build-bl30: $(BL30)
 
 $(BL30):
-	$(CURL) https://builds.96boards.org/releases/hikey/mcuimage.bin -o $(BL30)
+	$(CURL) https://builds.96boards.org/releases/hikey/linaro/binaries/15.05/mcuimage.bin -o $(BL30)
 
 cleaner-bl30:
 	$(ECHO) '  CLEANER $(BL30)'
