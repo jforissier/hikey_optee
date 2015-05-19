@@ -54,7 +54,21 @@ sudo cp 51-hikey.rules to /etc/udev/rules.d/
 
 ### 2. How to build
 ```
-git submodule update --init
+# Specifying all submodules but optee_test which is not public and
+# would cause the init command to fail
+git submodule init \
+	arm-trusted-firmware \
+	burn-boot \
+	edk2 \
+	gen_rootfs \
+	l-loader \
+	linux \
+	optee_client \
+	optee_linuxdriver \
+	optee_os \
+	strace
+git submodule update
+# Note: generation of boot.img uses 'sudo'
 make -j8
 ```
 
