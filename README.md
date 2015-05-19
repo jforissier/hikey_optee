@@ -54,8 +54,8 @@ sudo cp 51-hikey.rules to /etc/udev/rules.d/
 
 ### 2. How to build
 ```
-# Specifying all submodules but optee_test which is not public and
-# would cause the init command to fail
+# Initialize all submodules except optee_test. If you have access to
+# optee_test, just do 'git submodule init' to get all submodules
 git submodule init \
 	arm-trusted-firmware \
 	burn-boot \
@@ -65,9 +65,12 @@ git submodule init \
 	linux \
 	optee_client \
 	optee_linuxdriver \
-	optee_os \
-	strace
+	optee_os
+
+# Fetch submodules (will take time)
 git submodule update
+
+# Fetch the cross-compilers (~ 90MB) and build
 # Note: generation of boot.img uses 'sudo'
 make -j8
 ```

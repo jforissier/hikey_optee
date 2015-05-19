@@ -23,7 +23,7 @@ clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
 clean: clean-optee-client clean-bl32
 
-cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox cleaner-strace
+cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
 
 distclean: cleaner distclean-aarch64-gcc distclean-arm-gcc distclean-busybox
 
@@ -98,7 +98,7 @@ BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
 #
 # Aarch64 toolchain
 #
-AARCH64_GCC_URL = http://releases.linaro.org/14.08/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.08_linux.tar.xz
+AARCH64_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux.tar.xz
 AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
 # If you don't want to download the aarch64 toolchain, comment out
@@ -110,7 +110,7 @@ export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch6
 #
 # Aarch32 toolchain
 #
-ARM_GCC_URL = https://releases.linaro.org/15.02/components/toolchain/binaries/arm-linux-gnueabihf/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf.tar.xz
+ARM_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
 ARM_GCC_TARBALL = $(call filename,$(ARM_GCC_URL))
 ARM_GCC_DIR = $(ARM_GCC_TARBALL:.tar.xz=)
 # If you don't want to download the aarch32 toolchain, comment out
@@ -404,9 +404,6 @@ ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-test
 endif
 endif
-ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
-initramfs-deps += build-strace
-endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -583,34 +580,4 @@ else
 IFTESTS=\#
 
 endif # if optee_test/Makefile exists
-
-#
-# strace
-#
-
-STRACE = strace/strace
-STRACE_EXPORTS := CC='$(CROSS_COMPILE)gcc' LD='$(CROSS_COMPILE)ld'
-
-build-strace:: $(aarch64-linux-gnu-gcc)
-build-strace $(STRACE):: strace/Makefile
-	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C strace
-
-strace/Makefile: strace/configure
-	$(ECHO) '  GEN     $@'
-	$(Q)set -e ; export $(STRACE_EXPORTS) ; \
-	    cd strace ; ./configure --host=aarch64-linux-gnu
-
-strace/configure: strace/bootstrap
-	$(ECHO) ' GEN      $@'
-	$(Q)cd strace ; ./bootstrap
-
-.PHONY: clean-strace
-clean-strace:
-	$(ECHO) '  CLEAN   $@'
-	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
-
-cleaner-strace:
-	$(ECHO) '  CLEANER $@'
-	$(Q)rm -f strace/Makefile strace/configure
 

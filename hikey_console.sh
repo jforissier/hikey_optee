@@ -8,4 +8,5 @@
 # --lf: do not send CR+LF, send LF only
 # This does not work in UEFI shell. Use 'Ctrl+T Ctrl+L' to switch to
 # CR+LF mode again.
-miniterm.py --lf /dev/ttyUSB0 115200
+DEV=${1:-/dev/ttyUSB0}
+miniterm.py --lf ${DEV} 115200
