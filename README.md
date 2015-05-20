@@ -37,8 +37,16 @@ As for software:
 sudo apt-get install \
     android-tools-fastboot \
     autoconf \
+    curl \
     gdisk \
-    python-serial
+    python-serial \
+    uuid-dev
+```
+
+If you are running a 64-bit linux distribution, you may also need
+the following:
+```
+sudo apt-get install libc6:i386 libstdc++6:i386 libz1:i386
 ```
 
 "Known good" cross compilers/toolchains are downloaded aytomatically from
