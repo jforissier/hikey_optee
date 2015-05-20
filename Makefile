@@ -307,7 +307,7 @@ endif
 build-lloader:: $(lloader-deps)
 build-lloader $(LLOADER)::
 	$(ECHO) '  BUILD   build-lloader'
-	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) l-loader.bin
+	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) CROSS_COMPILE="$(CROSS_COMPILE32)" l-loader.bin
 
 build-ptable $(PTABLE):
 	$(ECHO) '  BUILD   build-ptable'
