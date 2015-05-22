@@ -1,0 +1,12 @@
+# I am using Qt Creator as a source code editor for some submodules.
+# I want Git to ignore the Qt Creator project files, but prefer not
+# to add them to the .gitignore files of the submodules themselves since
+# they are very user-specific.
+# Half-good solution: register this file using the following command
+# in each submodule that has Qt files:
+#   git config --local core.excludesfile "../.gitignore_submodules"
+/*.files
+/*.includes
+/*.creator
+/*.creator.user
+/*.config

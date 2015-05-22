@@ -48,7 +48,6 @@ help:
 	@echo "      [DTB = $(DTB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)]"
 	@echo "          [gen_rootfs/busybox/*]"
-	@echo "          [STRACE = $(STRACE)]"
 	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
