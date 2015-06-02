@@ -325,6 +325,9 @@ clean-lloader-ptable:
 
 LINUX = linux/arch/arm64/boot/Image
 DTB = linux/arch/arm64/boot/dts/hi6220-hikey.dtb
+# Config fragments to merge with the default kernel configuration
+KCONFIGS += kernel_config/usb_net_dm9601.conf
+#KCONFIGS += kernel_config/ftrace.conf
 
 .PHONY: build-linux
 build-linux:: $(aarch64-linux-gnu-gcc)
@@ -337,10 +340,10 @@ build-dtb $(DTB):: linux/.config
 	$(ECHO) '  BUILD   build-dtb'
 	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= dtbs
 
-linux/.config: kernel.config
+linux/.config: $(KCONFIGS)
 	$(ECHO) '  BUILD   $@'
 	$(Q)cd linux && ARCH=arm64 scripts/kconfig/merge_config.sh \
-	    arch/arm64/configs/defconfig ../kernel.config
+	    arch/arm64/configs/defconfig $(patsubst %,../%,$(KCONFIGS))
 
 linux/usr/gen_init_cpio: linux/.config
 	$(ECHO) '  BUILD   $@'
