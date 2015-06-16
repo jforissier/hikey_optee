@@ -21,7 +21,7 @@ all: build-lloader build-fip build-boot-img build-nvme build-bl30 build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
-clean: clean-optee-client clean-bl32
+clean: clean-optee-client clean-bl32 clean-aes-perf
 
 cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
 
@@ -401,6 +401,9 @@ endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-client
 endif
+ifneq ($(filter all build-aes-perf,$(MAKECMDGOALS)),)
+initramfs-deps += build-aes-perf
+endif
 ifneq (,$(wildcard optee_test/Makefile))
 ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-test
@@ -563,7 +566,6 @@ ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 optee-test-deps += build-optee-client
 endif
 
-# FIXME: will rebuild all files, even if they are already up-to-date
 .PHONY: build-optee-test
 build-optee-test:: $(optee-test-deps)
 build-optee-test:: $(aarch64-linux-gnu-gcc)
@@ -582,4 +584,29 @@ else
 IFTESTS=\#
 
 endif # if optee_test/Makefile exists
+
+#
+# aes-perf (AES crypto performance test)
+#
+
+aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
+		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
+
+ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
+aes-perf-deps += build-bl32
+endif
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+aes-perf-deps += build-optee-client
+endif
+
+.PHONY: build-aes-perf
+build-aes-perf:: $(aes-perf-deps)
+build-aes-perf:: $(aarch64-linux-gnu-gcc)
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C aes-perf $(aes-perf-flags)
+
+clean-aes-perf:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)rm -rf aes-perf/out
 

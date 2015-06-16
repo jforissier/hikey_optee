@@ -32,3 +32,6 @@
 [submodule "optee_os"]
 	path = optee_os
 	url = https://github.com/OP-TEE/optee_os.git
+[submodule "aes-perf"]
+	path = aes-perf
+	url = https://github.com/linaro-swg/aes-perf.git

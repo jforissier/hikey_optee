@@ -31,3 +31,6 @@ ${IFTESTS}file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta ${TOP}/op
 ${IFTESTS}file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta ${TOP}/optee_test/out/ta/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
 ${IFTESTS}file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta ${TOP}/optee_test/out/ta/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
 
+# AES benchmark application
+file /bin/aes-perf ${TOP}/aes-perf/out/aes-perf/aes-perf 755 0 0
+file /lib/optee_armtz/e626662e-c0e2-485c-b8c809fbce6edf3d.ta ${TOP}/aes-perf/out/ta/e626662e-c0e2-485c-b8c809fbce6edf3d.ta 444 0 0
