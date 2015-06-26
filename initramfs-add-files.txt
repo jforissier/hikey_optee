@@ -8,6 +8,10 @@ file /etc/udhcp/simple.script ${TOP}/gen_rootfs/busybox/examples/udhcp/simple.sc
 # Run this manually after plugging a USB to ethernet adapter
 file /usbnet.sh ${TOP}/usbnet.sh 755 0 0
 
+# rc.d entry for OP-TEE (start on boot)
+file /etc/init.d/optee ${TOP}/init.d.optee 755 0 0
+slink /etc/rc.d/S09_optee /etc/init.d/optee 755 0 0
+
 # OP-TEE device
 dir /lib/modules 755 0 0
 dir /lib/modules/${KERNEL_VERSION} 755 0 0

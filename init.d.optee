@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# /etc/init.d/optee
+#
+# Start/stop OP-TEE services (kernel module and supplicant) 
+#
+case "$1" in
+    start)
+	if [ -e /bin/tee-supplicant -a -e /lib/modules/`uname -r`/optee_armtz.ko ]; then
+		echo "Starting OP-TEE..."
+		modprobe optee_armtz
+		tee-supplicant&
+		exit 0
+	else
+		echo "OP-TEE not found"
+	fi
+
+        ;;
+    stop)
+	killall tee-supplicant
+	modprobe -r optee_armtz optee
+	;;
+esac
