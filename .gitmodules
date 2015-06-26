@@ -1,25 +1,26 @@
 [submodule "edk2"]
 	path = edk2
-	url = https://github.com/jforissier/edk2.git
+	url = https://github.com/linaro-swg/edk2.git
 	branch = hikey_optee
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
-	url = https://github.com/jforissier/arm-trusted-firmware.git
+	url = https://github.com/linaro-swg/arm-trusted-firmware.git
 	branch = hikey-sec
 [submodule "l-loader"]
 	path = l-loader
-	url = https://github.com/jforissier/l-loader.git
-	branch = hikey
+	url = https://github.com/linaro-swg/l-loader.git
+	branch = hikey_optee
 [submodule "linux"]
 	path = linux
-	url = https://github.com/jforissier/linux.git
+	url = https://github.com/linaro-swg/linux.git
 	branch = hikey-optee
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
 [submodule "gen_rootfs"]
 	path = gen_rootfs
-	url = https://github.com/jforissier/gen_rootfs.git
+	url = https://github.com/linaro-swg/gen_rootfs.git
+	branch = hikey-optee
 [submodule "optee_linuxdriver"]
 	path = optee_linuxdriver
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
