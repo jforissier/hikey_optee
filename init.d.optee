@@ -9,6 +9,13 @@ case "$1" in
 	if [ -e /bin/tee-supplicant -a -e /lib/modules/`uname -r`/optee_armtz.ko ]; then
 		echo "Starting OP-TEE..."
 		modprobe optee_armtz
+		count=20
+		while [ ! -e /dev/opteearmtz00 -a $count -ne 0 ]
+		do
+			sleep 0.1
+			count=`expr $count - 1`
+		done
+		[ $count -eq 0 ] && exit 1
 		tee-supplicant&
 		exit 0
 	else
