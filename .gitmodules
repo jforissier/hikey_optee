@@ -29,7 +29,7 @@
 	url = https://github.com/OP-TEE/optee_client.git
 [submodule "optee_test"]
 	path = optee_test
-	url = ssh://linaro-private.git.linaro.org/srv/linaro-private.git.linaro.org/swg/optee_test.git
+	url = https://github.com/OP-TEE/optee_test.git
 [submodule "optee_os"]
 	path = optee_os
 	url = https://github.com/OP-TEE/optee_os.git

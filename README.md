@@ -5,7 +5,7 @@ with OP-TEE:
 - Linux kernel
 - BusyBox
 - OP-TEE (OS, driver, client library)
-- OP-TEE tests (subject to repository access)
+- OP-TEE tests
 
 
 ## Usage
@@ -62,18 +62,8 @@ sudo cp 51-hikey.rules to /etc/udev/rules.d/
 
 ### 2. How to build
 ```
-# Initialize all submodules except optee_test. If you have access to
-# optee_test, just do 'git submodule init' to get all submodules
-git submodule init \
-	arm-trusted-firmware \
-	burn-boot \
-	edk2 \
-	gen_rootfs \
-	l-loader \
-	linux \
-	optee_client \
-	optee_linuxdriver \
-	optee_os
+# Initialize URLs for git submodules
+git submodule init
 
 # Fetch submodules (will take time)
 git submodule update
