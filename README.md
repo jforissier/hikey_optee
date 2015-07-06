@@ -74,8 +74,11 @@ make -j8
 ```
 
 For 64-bit TEE Core, use `make -j8 OPTEE_64BIT=1`.
-If you don't have access to the optee_test repository, you can still clone
-all other submodules and build without the tests.
+
+If you have access to the GlobalPlatform "Initial COnfiguration Test Suite"
+(TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07.7z), you my extract
+it under optee_test and it will be included automatically. If you later
+remove the directory, be sure to clean optee_test (git reset --hard HEAD).
 
 ### 3. How to flash the firmware onto the board
 

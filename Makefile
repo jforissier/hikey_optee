@@ -417,7 +417,7 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
-	    export TOP=$(PWD) ; \
+	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
 gen_rootfs/filelist-final.txt: .busybox $(aarch64-linux-gnu-gcc)
@@ -546,6 +546,20 @@ clean-bl32:
 # OP-TEE tests (xtest)
 #
 
+# To build with GlobalPlatform tests ("extended xtest"), just extract
+# TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07.7z under optee_test.
+#
+# NOTE: If you have built with GlobalPlatform tests and later remove them
+# (or force GP_TESTS=0), you will need to clean the repository:
+#   cd optee_test ; git reset --hard HEAD
+ifneq (,$(wildcard optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07))
+GP_TESTS=1
+endif
+
+ifneq ($(GP_TESTS),1)
+IFGP=\#
+endif
+
 all: build-optee-test
 clean: clean-optee-test
 
@@ -553,6 +567,11 @@ optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
 		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
+ifeq ($(GP_TESTS),1)
+optee-test-flags += CFG_GP_TESTSUITE_ENABLE=y \
+		    CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07 \
+		    CFG_DEV_PATH=$(PWD)
+endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 optee-test-deps += build-bl32
@@ -560,11 +579,16 @@ endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 optee-test-deps += build-optee-client
 endif
+ifeq ($(GP_TESTS),1)
+optee-test-deps += optee-test-do-patch
+endif
+
 
 .PHONY: build-optee-test
 build-optee-test:: $(optee-test-deps)
 build-optee-test:: $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   $@'
+	$(Q)touch optee_test/scripts/.conf
 	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
 
 # FIXME:
@@ -573,6 +597,13 @@ build-optee-test:: $(aarch64-linux-gnu-gcc)
 clean-optee-test:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf optee_test/out
+	$(Q)rm -f optee_test/scripts/.conf
+
+.PHONY: optee-test-do-patch
+optee-test-do-patch:
+	$(Q)touch optee_test/scripts/.conf
+	$(Q)$(MAKE) -C optee_test $(optee-test-flags) patch
+
 
 #
 # aes-perf (AES crypto performance test)
@@ -580,7 +611,7 @@ clean-optee-test:
 
 aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
 		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 aes-perf-deps += build-bl32
