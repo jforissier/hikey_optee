@@ -322,8 +322,9 @@ clean-lloader-ptable:
 # each time it is run
 
 LINUX = linux/arch/arm64/boot/Image
-DTB = linux/arch/arm64/boot/dts/hi6220-hikey.dtb
+DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 # Config fragments to merge with the default kernel configuration
+KCONFIGS += kernel_config/dmabuf.conf
 KCONFIGS += kernel_config/usb_net_dm9601.conf
 #KCONFIGS += kernel_config/ftrace.conf
 
