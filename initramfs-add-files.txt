@@ -53,3 +53,6 @@ ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta ${TOP}/optee
 file /bin/aes-perf ${TOP}/aes-perf/out/aes-perf/aes-perf 755 0 0
 file /lib/optee_armtz/e626662e-c0e2-485c-b8c809fbce6edf3d.ta ${TOP}/aes-perf/out/ta/e626662e-c0e2-485c-b8c809fbce6edf3d.ta 444 0 0
 
+# SHA benchmark application
+file /bin/sha-perf ${TOP}/sha-perf/out/sha-perf/sha-perf 755 0 0
+file /lib/optee_armtz/614789f2-39c0-4ebf-b23592b32ac107ed.ta ${TOP}/sha-perf/out/ta/614789f2-39c0-4ebf-b23592b32ac107ed.ta 444 0 0
