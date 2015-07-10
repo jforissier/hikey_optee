@@ -12,8 +12,7 @@
 	branch = hikey_optee
 [submodule "linux"]
 	path = linux
-	url = https://github.com/linaro-swg/linux.git
-	branch = hikey-optee
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
