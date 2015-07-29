@@ -1,7 +1,7 @@
 This repository contains the software required to boot the HiKey board
 with OP-TEE:
 - ARM Trusted Firmware
-- EDK2
+- EDK2 (UEFI)
 - Linux kernel
 - BusyBox
 - OP-TEE (OS, driver, client library)
@@ -49,7 +49,7 @@ the following:
 sudo apt-get install libc6:i386 libstdc++6:i386 libz1:i386
 ```
 
-"Known good" cross compilers/toolchains are downloaded aytomatically from
+"Known good" cross compilers/toolchains are downloaded automatically from
 linaro.org by the Makefile.
 
 Also, to get the USB devices recognized properly (i.e., the HiKey board in
@@ -75,7 +75,7 @@ make -j8
 
 For 64-bit TEE Core, use `make -j8 OPTEE_64BIT=1`.
 
-If you have access to the GlobalPlatform "Initial COnfiguration Test Suite"
+If you have access to the GlobalPlatform "Initial Configuration Test Suite"
 (TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07.7z), you my extract
 it under optee_test and it will be included automatically. If you later
 remove the directory, be sure to clean optee_test (git reset --hard HEAD).
@@ -91,7 +91,11 @@ make help
 
 On the HiKey console:
 ```
-modprobe optee_armtz
-tee-supplicant&
+# Run all tests
 xtest
+# Run one test
+xtest 4001
+# Run tests 1* or 1000*
+xtest _1
+xtest _1000
 ```
