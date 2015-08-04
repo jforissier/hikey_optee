@@ -228,8 +228,12 @@ BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
 
 ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG)
+# TF console now defaults to UART 3 (on the low-speed header connector).
+# The following line selects UART 0 (the unpopulated pads next to J15),
+# which is also used by the boot ROM.
+ARMTF_FLAGS += CONSOLE_BASE=PL011_UART0_BASE CRASH_CONSOLE_BASE=PL011_UART0_BASE
 #ARMTF_FLAGS += LOG_LEVEL=40
-ARMTF_EXPORTS := NEED_BL30=yes BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
+ARMTF_EXPORTS := BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += SPD=opteed
 ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
