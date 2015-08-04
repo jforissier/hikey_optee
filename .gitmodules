@@ -36,4 +36,4 @@
 	url = https://github.com/linaro-swg/aes-perf.git
 [submodule "sha-perf"]
 	path = sha-perf
-	url = git@github.com:linaro-swg/sha-perf.git
+	url = https://github.com/linaro-swg/sha-perf.git
