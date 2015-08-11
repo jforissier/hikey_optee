@@ -586,6 +586,7 @@ ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_TESTSUITE_ENABLE=y \
 		    CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07 \
 		    CFG_DEV_PATH=$(PWD)
+optee-test-patch-exports := export CFG_OPTEE_TEST_PATH=$(PWD)/optee_test
 endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
@@ -617,7 +618,7 @@ clean-optee-test:
 .PHONY: optee-test-do-patch
 optee-test-do-patch:
 	$(Q)touch optee_test/scripts/.conf
-	$(Q)$(MAKE) -C optee_test $(optee-test-flags) patch
+	$(Q)$(optee-test-patch-exports) ; $(MAKE) -C optee_test $(optee-test-flags) patch
 
 
 #
