@@ -2,6 +2,7 @@ This repository contains the software required to boot the HiKey board
 with OP-TEE:
 - ARM Trusted Firmware
 - EDK2 (UEFI)
+- GRUB 2
 - Linux kernel
 - BusyBox
 - OP-TEE (OS, driver, client library)
@@ -40,7 +41,9 @@ sudo apt-get install \
     curl \
     gdisk \
     python-serial \
-    uuid-dev
+    uuid-dev \
+    flex \
+    bison
 ```
 
 If you are running a 64-bit linux distribution, you may also need
@@ -69,7 +72,9 @@ git submodule init
 git submodule update
 
 # Fetch the cross-compilers (~ 90MB) and build
-# Note: generation of boot.img uses 'sudo'
+# Note: generation of boot.img uses 'sudo' so if the build
+# appears to be hung in the end, it's probably just waiting
+# for your password.
 make -j8
 ```
 

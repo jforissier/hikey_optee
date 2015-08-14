@@ -37,3 +37,6 @@
 [submodule "sha-perf"]
 	path = sha-perf
 	url = https://github.com/linaro-swg/sha-perf.git
+[submodule "grub"]
+	path = grub
+	url = git://git.savannah.gnu.org/grub.git

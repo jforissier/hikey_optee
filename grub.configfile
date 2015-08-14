@@ -1,0 +1,2 @@
+set prefix=(hd0,gpt6)
+configfile (hd0,gpt6)/grub.cfg
