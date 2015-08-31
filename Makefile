@@ -17,14 +17,14 @@ endif
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
 
-all: build-lloader build-fip build-boot-img build-nvme build-bl30 build-ptable
+all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
 clean: clean-optee-client clean-bl32 clean-aes-perf clean-sha-perf
 clean: clean-grub
 
-cleaner: clean cleaner-nvme cleaner-bl30 cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
+cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
 
 distclean: cleaner distclean-aarch64-gcc distclean-arm-gcc distclean-busybox distclean-grub
 
@@ -238,7 +238,7 @@ ATF = arm-trusted-firmware/build/hikey/release
 endif
 BL1 = $(ATF)/bl1.bin
 BL2 = $(ATF)/bl2.bin
-BL30 = mcuimage.bin
+BL30 = edk2/HisiPkg/HiKeyPkg/NonFree/mcuimage.bin
 BL31 = $(ATF)/bl31.bin
 # Comment out to not include OP-TEE OS image in fip.bin
 BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
@@ -277,9 +277,6 @@ build-bl31 $(BL31): $(aarch64-linux-gnu-gcc)
 
 ifneq ($(filter all build-bl2,$(MAKECMDGOALS)),)
 tf-deps += build-bl2
-endif
-ifneq ($(filter all build-bl30,$(MAKECMDGOALS)),)
-tf-deps += build-bl30
 endif
 ifneq ($(filter all build-bl31,$(MAKECMDGOALS)),)
 tf-deps += build-bl31
@@ -528,20 +525,6 @@ $(NVME):
 cleaner-nvme:
 	$(ECHO) '  CLEANER $(NVME)'
 	$(Q)rm -f $(NVME)
-
-#
-# Download mcuimage.bin (packaged as BL30 in FIP)
-#
-
-.PHONY: build-bl30
-build-bl30: $(BL30)
-
-$(BL30):
-	$(CURL) https://builds.96boards.org/releases/hikey/linaro/binaries/15.05/mcuimage.bin -o $(BL30)
-
-cleaner-bl30:
-	$(ECHO) '  CLEANER $(BL30)'
-	$(Q)rm -f $(BL30)
 
 #
 # OP-TEE Linux driver
