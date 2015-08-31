@@ -1,7 +1,7 @@
 [submodule "edk2"]
 	path = edk2
-	url = https://github.com/linaro-swg/edk2.git
-	branch = hikey_optee
+	url = https://github.com/96boards/edk2.git
+	branch = hikey
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
 	url = https://github.com/96boards/arm-trusted-firmware.git
