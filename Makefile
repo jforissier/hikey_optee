@@ -402,7 +402,7 @@ build-boot-img $(BOOT-IMG)::
 	$(Q)if [ -d .tmpbootimg ] ; then sudo rm -rf .tmpbootimg ; fi
 	$(Q)mkdir -p .tmpbootimg
 	$(Q)dd if=/dev/zero of=$(BOOT-IMG) bs=512 count=131072 status=none
-	$(Q)sudo mkfs.fat -n "BOOT IMG" $(BOOT-IMG) >/dev/null
+	$(Q)sudo mkfs.vfat -n "BOOT IMG" $(BOOT-IMG) >/dev/null
 	$(Q)sudo mount -o loop,rw,sync $(BOOT-IMG) .tmpbootimg
 	$(Q)sudo cp $(LINUX) $(DTB) $(GRUB) .tmpbootimg
 	$(Q)sudo cp $(INITRAMFS) .tmpbootimg/initrd.img
