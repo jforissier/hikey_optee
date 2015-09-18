@@ -55,9 +55,8 @@ sudo apt-get install libc6:i386 libstdc++6:i386 libz1:i386
 "Known good" cross compilers/toolchains are downloaded automatically from
 linaro.org by the Makefile.
 
-Also, to get the USB devices recognized properly (i.e., the HiKey board in
-recovery mode will show up as /dev/HiKey and fastboot will properly detect
-the board), just do:
+Copy the USB device configuration file so that the fastboot command will
+properly detect the board:
 
 ```
 sudo cp 51-hikey.rules to /etc/udev/rules.d/
@@ -94,7 +93,12 @@ make help
 
 ### 4. How to run OP-TEE tests (xtest)
 
-On the HiKey console:
+Connect to the board with:
+```
+./hikey_console.sh
+```
+
+Then you may run the tests with:
 ```
 # Run all tests
 xtest
