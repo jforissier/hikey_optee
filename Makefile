@@ -634,9 +634,7 @@ optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_TESTSUITE_ENABLE=y \
-		    CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07 \
-		    CFG_DEV_PATH=$(PWD)
-optee-test-patch-exports := export CFG_OPTEE_TEST_PATH=$(PWD)/optee_test
+		    CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
 endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
@@ -654,7 +652,6 @@ endif
 build-optee-test:: $(optee-test-deps)
 build-optee-test:: $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   $@'
-	$(Q)touch optee_test/scripts/.conf
 	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
 
 # FIXME:
@@ -663,12 +660,10 @@ build-optee-test:: $(aarch64-linux-gnu-gcc)
 clean-optee-test:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf optee_test/out
-	$(Q)rm -f optee_test/scripts/.conf
 
 .PHONY: optee-test-do-patch
 optee-test-do-patch:
-	$(Q)touch optee_test/scripts/.conf
-	$(Q)$(optee-test-patch-exports) ; $(MAKE) -C optee_test $(optee-test-flags) patch
+	$(Q)$(MAKE) -C optee_test $(optee-test-flags) patch
 
 
 #
