@@ -25,7 +25,7 @@ _all:
 all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
-clean: clean-linux-dtb clean-boot-img clean-initramfs clean-optee-linuxdriver
+clean: clean-linux-dtb clean-boot-img clean-initramfs
 clean: clean-optee-client clean-bl32 clean-aes-perf clean-sha-perf
 clean: clean-grub
 
@@ -55,7 +55,6 @@ help:
 	@echo "      [GRUB = $(GRUB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)], contains:"
 	@echo "          [busybox/*]"
-	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
 	@echo "          [OPTEE-TEST = optee_test/out/xtest/xtest" \
@@ -361,13 +360,14 @@ DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 # Config fragments to merge with the default kernel configuration
 KCONFIGS += kernel_config/dmabuf.conf
 KCONFIGS += kernel_config/usb_net_dm9601.conf
+KCONFIGS += kernel_config/optee_gendrv.conf
 #KCONFIGS += kernel_config/ftrace.conf
 
 .PHONY: build-linux
 build-linux:: $(aarch64-linux-gnu-gcc)
 build-linux $(LINUX):: linux/.config
 	$(ECHO) '  BUILD   build-linux'
-	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image
+	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image modules
 
 build-dtb:: $(aarch64-linux-gnu-gcc)
 build-dtb $(DTB):: linux/.config
@@ -437,9 +437,6 @@ clean-boot-img:
 
 INITRAMFS = initramfs.cpio.gz
 
-ifneq ($(filter all build-optee-linuxdriver,$(MAKECMDGOALS)),)
-initramfs-deps += build-optee-linuxdriver
-endif
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-client
 endif
@@ -543,35 +540,6 @@ $(NVME):
 cleaner-nvme:
 	$(ECHO) '  CLEANER $(NVME)'
 	$(Q)rm -f $(NVME)
-
-#
-# OP-TEE Linux driver
-#
-
-optee-linuxdriver-files := optee_linuxdriver/optee.ko \
-                           optee_linuxdriver/optee_armtz.ko
-
-ifneq ($(filter all build-linux,$(MAKECMDGOALS)),)
-optee-linuxdriver-deps += build-linux
-endif
-
-.PHONY: build-optee-linuxdriver
-build-optee-linuxdriver:: $(optee-linuxdriver-deps)
-build-optee-linuxdriver $(optee-linuxdriver-files):: $(host-gcc)
-	$(ECHO) '  BUILD   build-optee-linuxdriver'
-	$(Q)$(MAKE) -C linux \
-	   ARCH=arm64 \
-	   LOCALVERSION= \
-	   M=../optee_linuxdriver \
-	   modules
-
-clean-optee-linuxdriver:
-	$(ECHO) '  CLEAN   $@'
-	$(Q)$(MAKE) -C linux \
-	   ARCH=arm64 \
-	   LOCALVERSION= \
-	   M=../optee_linuxdriver \
-	   clean
 
 #
 # OP-TEE client library and tee-supplicant executable
