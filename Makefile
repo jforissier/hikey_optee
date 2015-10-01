@@ -633,8 +633,7 @@ optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 ifeq ($(GP_TESTS),1)
-optee-test-flags += CFG_GP_TESTSUITE_ENABLE=y \
-		    CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
+optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
 endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
