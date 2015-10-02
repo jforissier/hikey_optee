@@ -23,7 +23,7 @@
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
 [submodule "optee_client"]
 	path = optee_client
-	url = https://github.com/OP-TEE/optee_client.git
+	url = https://github.com/ajs-sun/optee_client-1.git
 [submodule "optee_test"]
 	path = optee_test
 	url = https://github.com/OP-TEE/optee_test.git
