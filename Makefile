@@ -49,7 +49,7 @@ help:
 	@echo "      [DTB = $(DTB)]"
 	@echo "      [GRUB = $(GRUB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)], contains:"
-	@echo "          [gen_rootfs/busybox/*]"
+	@echo "          [busybox/*]"
 	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
@@ -165,10 +165,9 @@ distclean-arm-gcc:
 	$(Q)rm -f downloads/$(ARM_GCC_TARBALL)
 
 .busybox: downloads/$(BUSYBOX_TARBALL)
-	$(ECHO) '  TAR     gen_rootfs/busybox'
-	$(Q)rm -rf gen_rootfs/$(BUSYBOX_DIR) gen_rootfs/busybox
-	$(Q)cd gen_rootfs && tar xf ../downloads/$(BUSYBOX_TARBALL)
-	$(Q)mv gen_rootfs/$(BUSYBOX_DIR) gen_rootfs/busybox
+	$(ECHO) '  TAR     busybox'
+	$(Q)rm -rf $(BUSYBOX_DIR) busybox
+	$(Q)tar xf downloads/$(BUSYBOX_TARBALL) && mv $(BUSYBOX_DIR) busybox
 	$(Q)touch $@
 
 downloads/$(BUSYBOX_TARBALL):
@@ -177,7 +176,7 @@ downloads/$(BUSYBOX_TARBALL):
 
 cleaner-busybox:
 	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf gen_rootfs/$(BUSYBOX_DIR) gen_rootfs/busybox .busybox
+	$(Q)rm -rf (BUSYBOX_DIR) busybox .busybox
 
 distclean-busybox:
 	$(ECHO) '  DISTCL  $@'

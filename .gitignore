@@ -1,4 +1,5 @@
 /.busybox
+/busybox
 /.edk2basetools
 /.linuxbuildinprogress
 /nvme.img
