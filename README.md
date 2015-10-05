@@ -77,7 +77,8 @@ git submodule update
 make -j8
 ```
 
-For 64-bit TEE Core, use `make -j8 OPTEE_64BIT=1`.
+For a 32-bit TEE Core, use `make SK=32` (32-bit secure kernel).
+For a 32-bit root filesystem, use `make NSU=32` (32-bit non-secure user mode).
 
 If you have access to the GlobalPlatform "Initial Configuration Test Suite"
 (TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07.7z), you my extract

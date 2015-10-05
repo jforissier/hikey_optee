@@ -13,6 +13,11 @@ else
   ECHO := @echo
 endif
 
+# Non-secure user mode (root fs binaries): 32 or 64-bit
+NSU ?= 64
+# Secure kernel (OP-TEE OS): 32 or 64bit
+SK ?= 64
+
 .PHONY: _all
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
@@ -71,6 +76,9 @@ help:
 	@echo "use 'make build-<foo> build-<bar>'."
 	@echo "Plain 'make' or 'make all' do check all dependencies, however."
 	@echo
+	@echo "Use 'make SK=32'  for 32-bit secure kernel (OP-TEE OS) [default 64]"
+	@echo "    'make NSU=32' for 32-bit non-secure user-mode [default 64]"
+	@echo
 	@echo "Flashing micro-howto:"
 	@echo "  # First time flashing the board (or broken eMMC):"
 	@echo "  # Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
@@ -123,6 +131,16 @@ ARM_GCC_DIR = $(ARM_GCC_TARBALL:.tar.xz=)
 arm-linux-gnueabihf-gcc := toolchains/$(ARM_GCC_DIR)
 CROSS_COMPILE32 ?= $(CCACHE)$(PWD)/toolchains/$(ARM_GCC_DIR)/bin/arm-linux-gnueabihf-
 #CROSS_COMPILE32 ?= $(CCACHE)arm-linux-gnueabihf-
+
+ifeq ($(NSU),64)
+CROSS_COMPILE_HOST := $(CROSS_COMPILE)
+host-gcc := $(aarch64-linux-gnu-gcc)
+MULTIARCH := aarch64-linux-gnu
+else
+CROSS_COMPILE_HOST := $(CROSS_COMPILE32)
+host-gcc := $(arm-linux-gnueabihf-gcc)
+MULTIARCH := arm-linux-gnueabihf
+endif
 
 #
 # Download rules
@@ -446,12 +464,13 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
 	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; \
+	    export MULTIARCH=$(MULTIARCH) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
-gen_rootfs/filelist-final.txt: .busybox $(aarch64-linux-gnu-gcc)
+gen_rootfs/filelist-final.txt: .busybox $(host-gcc)
 	$(ECHO) '  GEN    gen_rootfs/filelist-final.txt'
 	$(Q)cd gen_rootfs ; \
-	    export CC_DIR=$(PWD)/toolchains/$(AARCH64_GCC_DIR) ; \
+	    export CROSS_COMPILE="$(CROSS_COMPILE_HOST)" ; \
 	    ./generate-cpio-rootfs.sh hikey nocpio
 
 clean-initramfs:
@@ -538,7 +557,7 @@ endif
 
 .PHONY: build-optee-linuxdriver
 build-optee-linuxdriver:: $(optee-linuxdriver-deps)
-build-optee-linuxdriver $(optee-linuxdriver-files):: $(aarch64-linux-gnu-gcc)
+build-optee-linuxdriver $(optee-linuxdriver-files):: $(host-gcc)
 	$(ECHO) '  BUILD   build-optee-linuxdriver'
 	$(Q)$(MAKE) -C linux \
 	   ARCH=arm64 \
@@ -558,14 +577,16 @@ clean-optee-linuxdriver:
 # OP-TEE client library and tee-supplicant executable
 #
 
+optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
+
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C optee_client
+	$(Q)$(MAKE) -C optee_client $(optee-client-flags)
 
 clean-optee-client:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)$(MAKE) -C optee_client clean
+	$(Q)$(MAKE) -C optee_client $(optee-client-flags) clean
 
 #
 # OP-TEE OS
@@ -579,7 +600,7 @@ optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
-# - TEE Core is 64-bit (OPTEE_64BIT=1 below) and compiler is aarch64-linux-gnu-gcc
+# - TEE Core is 64-bit and compiler is aarch64-linux-gnu-gcc
 #   4.9.2-10ubuntu13, and
 # - DEBUG=0, and
 # - 32-bit user libraries are built with arm-linux-gnueabihf-gcc 4.9.2-10ubuntu10
@@ -589,8 +610,7 @@ optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 # or with:
 #   'arm-linux-gnueabihf-gcc (Linaro GCC 2014.11) 4.9.3 20141031 (prerelease)'
 # and the problem disappears.
-OPTEE_64BIT ?= 0
-ifeq ($(OPTEE_64BIT),1)
+ifeq ($(SK),64)
 optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
 endif
 
@@ -627,7 +647,7 @@ endif
 all: build-optee-test
 clean: clean-optee-test
 
-optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
+optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
@@ -668,7 +688,7 @@ optee-test-do-patch:
 # aes-perf (AES crypto performance test)
 #
 
-aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
+aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
 
@@ -693,7 +713,7 @@ clean-aes-perf:
 # sha-perf (SHA performance test)
 #
 
-sha-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE)" \
+sha-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
 

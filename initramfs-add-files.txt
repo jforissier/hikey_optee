@@ -20,10 +20,10 @@ file /lib/modules/${KERNEL_VERSION}/optee_armtz.ko ${TOP}/optee_linuxdriver/armt
 
 # OP-TEE client
 file /bin/tee-supplicant ${TOP}/optee_client/out/export/bin/tee-supplicant 755 0 0
-dir /lib/aarch64-linux-gnu 755 0 0
-file /lib/aarch64-linux-gnu/libteec.so.1.0 ${TOP}/optee_client/out/export/lib/libteec.so.1.0 755 0 0
-slink /lib/aarch64-linux-gnu/libteec.so.1 libteec.so.1.0 755 0 0
-slink /lib/aarch64-linux-gnu/libteec.so libteec.so.1 755 0 0
+dir /lib/${MULTIARCH} 755 0 0
+file /lib/${MULTIARCH}/libteec.so.1.0 ${TOP}/optee_client/out/export/lib/libteec.so.1.0 755 0 0
+slink /lib/${MULTIARCH}/libteec.so.1 libteec.so.1.0 755 0 0
+slink /lib/${MULTIARCH}/libteec.so libteec.so.1 755 0 0
 
 # OP-TEE tests
 file /bin/xtest ${TOP}/optee_test/out/xtest/xtest 755 0 0
