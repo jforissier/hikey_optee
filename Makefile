@@ -653,6 +653,9 @@ optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
+ifeq ($(NSU),32)
+optee-test-flags += CFG_ARM32=y
+endif
 endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
