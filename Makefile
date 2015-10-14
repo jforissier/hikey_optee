@@ -336,7 +336,7 @@ endif
 #   DEPS    build/hikey/debug/bl31/bl31.ld.d
 #   DEPS    build/hikey/debug/bl31/bl31.ld.d
 .PHONY: build-lloader
-build-lloader:: $(lloader-deps)
+build-lloader:: $(arm-linux-gnueabihf-gcc) $(lloader-deps)
 build-lloader $(LLOADER)::
 	$(ECHO) '  BUILD   build-lloader'
 	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) CROSS_COMPILE="$(CROSS_COMPILE32)" l-loader.bin
