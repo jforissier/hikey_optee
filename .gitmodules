@@ -15,9 +15,6 @@
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
-[submodule "gen_rootfs"]
-	path = gen_rootfs
-	url = https://github.com/linaro-swg/gen_rootfs.git
 [submodule "optee_linuxdriver"]
 	path = optee_linuxdriver
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
@@ -36,6 +33,3 @@
 [submodule "sha-perf"]
 	path = sha-perf
 	url = https://github.com/linaro-swg/sha-perf.git
-[submodule "grub"]
-	path = grub
-	url = git://git.savannah.gnu.org/grub.git

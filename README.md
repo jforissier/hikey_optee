@@ -1,12 +1,10 @@
-This repository contains the software required to boot the HiKey board
+This repository contains the software required to run AOSP on the HiKey board
 with OP-TEE:
 - ARM Trusted Firmware
 - EDK2 (UEFI)
-- GRUB 2
 - Linux kernel
-- BusyBox
 - OP-TEE (OS, driver, client library)
-- OP-TEE tests
+- Download rules to get pre-built AOSP binaries from linaro.org
 
 
 ## Usage
@@ -37,7 +35,7 @@ As for software:
 ```
 sudo apt-get install \
     android-tools-fastboot \
-    autoconf \
+    android-tools-adb \
     curl \
     gdisk \
     python-serial \
@@ -94,9 +92,15 @@ make help
 
 ### 4. How to run OP-TEE tests (xtest)
 
-Connect to the board with:
+You may monitor the early boot sequence by connecting to the board's boot
+console with:
 ```
 ./hikey_console.sh
+```
+
+To get a shell and run command-line programs, use adb:
+```
+adb shell
 ```
 
 Then you may run the tests with:

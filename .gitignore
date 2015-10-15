@@ -1,10 +1,6 @@
-/.busybox
-/busybox
 /.edk2basetools
 /.linuxbuildinprogress
-/nvme.img
-/boot.img
-/initramfs.cpio.gz
+/*.img
+/*.img.tar.xz
 /out
 /public
-/grubaa64.efi
