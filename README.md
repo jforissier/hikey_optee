@@ -18,7 +18,8 @@ On the hardware side, you need:
 - A USB cable (male/male, A to micro-B) to connect your PC to the board
 - A serial to USB adapter cable to connect to the SoC's UART0 (console).
   This  is not strictly required but chances are you won't be able to
-  debug any bootloader/secure OS code without it.
+  debug any secure OS code without it (OP-TEE and the Trusted Applications
+  send their debug output to this serial console).
   You need a 1.8V-compatible serial cable. The one I use is made by FTDI and
   is reference TTL-232RG-VIP. Not cheap, but works fine.
   Wiring for this cable is as follows:
@@ -51,7 +52,8 @@ sudo apt-get install libc6:i386 libstdc++6:i386 libz1:i386
 ```
 
 "Known good" cross compilers/toolchains are downloaded automatically from
-linaro.org by the Makefile.
+linaro.org by the Makefile. This includes the Android NDK (Native
+Development Kit).
 
 Copy the USB device configuration file so that the fastboot command will
 properly detect the board:
@@ -69,14 +71,10 @@ git submodule init
 git submodule update
 
 # Fetch the cross-compilers (~ 90MB) and build
-# Note: generation of boot.img uses 'sudo' so if the build
-# appears to be hung in the end, it's probably just waiting
-# for your password.
 make -j8
 ```
 
 For a 32-bit TEE Core, use `make SK=32` (32-bit secure kernel).
-For a 32-bit root filesystem, use `make NSU=32` (32-bit non-secure user mode).
 
 If you have access to the GlobalPlatform "Initial Configuration Test Suite"
 (TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07.7z), you my extract
@@ -85,15 +83,24 @@ remove the directory, be sure to clean optee_test (git reset --hard HEAD).
 
 ### 3. How to flash the firmware onto the board
 
-Refer to:
+First, flash the Linaro pre-built AOSP image files. Set the J15 jumpers to:
+1-2 closed 3-4 closed 5-6 open (recovery mode), then power up the board and
+run:
 ```
-make help
+make flash
+```
+
+Switch the board back to normal eMMC boot mode (J15 1-2 closed 3-4 open
+5-6 open), turn power on, and after a few seconds you can upload the OP-TEE
+files with:
+```
+make install
 ```
 
 ### 4. How to run OP-TEE tests (xtest)
 
-You may monitor the early boot sequence by connecting to the board's boot
-console with:
+You may monitor the early boot sequence and the OP-TEE debug output by
+connecting to the board's boot console with:
 ```
 ./hikey_console.sh
 ```
