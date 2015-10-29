@@ -112,6 +112,11 @@ adb shell
 
 Then you may run the tests with:
 ```
+cd /system/modules
+insmod optee.ko
+insmod optee_armtz.ko
+tee-supplicant&
+
 # Run all tests
 xtest
 # Run one test

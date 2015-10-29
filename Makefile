@@ -36,7 +36,7 @@ compressed-images = downloads/boot_fat.uefi.img.tar.xz \
 		downloads/system.img.tar.xz \
 		downloads/userdata.img.tar.xz
 
-all: build-lloader build-fip build-optee-client build-optee-linuxdriver #build-optee-test
+all: build-lloader build-fip build-optee-client build-optee-linuxdriver build-optee-test
 all: build-aes-perf build-sha-perf
 all: $(SYSTEM-IMG) $(NVME-IMG) $(PTABLE-IMG) $(BOOT-IMG) $(CACHE-IMG) $(USERDATA-IMG)
 
@@ -94,7 +94,7 @@ help:
 	@echo "- 'make cleaner' also removes tar directories and downloaded images (*.img)"
 	@echo "- 'make distclean' removes all generated or downloaded files."
 	@echo
-	@echo "Use 'make SK=32'  for 32-bit secure kernel (OP-TEE OS) [default 64]"
+	@echo "Use 'make SK=32' for 32-bit secure kernel (OP-TEE OS) [default 64]"
 
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
@@ -484,11 +484,11 @@ optee-client-flags := APP_BUILD_SCRIPT=Android.mk NDK_PROJECT_PATH=. APP_ABI=arm
 .PHONY: build-optee-client
 build-optee-client: $(ndk)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(NDK-BUILD) -C optee_client $(optee-client-flags)
+	+$(Q)$(NDK-BUILD) -C optee_client $(optee-client-flags)
 
 clean-optee-client:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)$(NDK-BUILD) -C optee_client $(optee-client-flags) clean
+	+$(Q)$(NDK-BUILD) -C optee_client $(optee-client-flags) clean
 
 #
 # OP-TEE OS
@@ -539,55 +539,67 @@ clean-bl32:
 # (or force GP_TESTS=0), you will need to clean the repository:
 #   cd optee_test ; git reset --hard HEAD
 ifneq (,$(wildcard optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07))
-GP_TESTS=1
+GP_TESTS := 1
 endif
 
-ifneq ($(GP_TESTS),1)
-IFGP=$(Q)\#
+ifeq ($(GP_TESTS),1)
+optee-test-common-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
+ifeq ($(NSU),32)
+optee-test-common-flags += CFG_ARM32=y
+endif
 endif
 
-#all: build-optee-test
-#clean: clean-optee-test
-
-optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_NSU)" \
-		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
+optee-test-ta-flags := CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
-ifeq ($(GP_TESTS),1)
-optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
-ifeq ($(NSU),32)
-optee-test-flags += CFG_ARM32=y
-endif
-endif
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
-optee-test-deps += build-bl32
-endif
-ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
-optee-test-deps += build-optee-client
+optee-test-ta-deps += build-bl32
 endif
 ifeq ($(GP_TESTS),1)
-optee-test-deps += optee-test-do-patch
+optee-test-ta-deps += optee-test-do-patch
 endif
 
-
-.PHONY: build-optee-test
-build-optee-test:: $(optee-test-deps)
-build-optee-test:: $(aarch64-linux-gnu-gcc)
+.PHONY: build-optee-test-ta
+build-optee-test-ta:: $(optee-test-ta-deps)
+build-optee-test-ta:: $(arm-linux-gnueabihf-gcc)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
+	$(Q)$(MAKE) -C optee_test $(optee-test-common-flags) $(optee-test-ta-flags) ta
 
-# FIXME:
-# No "make clean" in optee_test: fails if optee_os has been cleaned
-# previously.
-clean-optee-test:
+clean-optee-test-ta:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)rm -rf optee_test/out
+	$(Q)rm -rf optee_test/out/ta
+
+optee-test-host-flags := APP_BUILD_SCRIPT=Android.mk NDK_PROJECT_PATH=. APP_ABI=arm64-v8a \
+			 TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+
+ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
+optee-test-host-deps += build-bl32
+endif
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+optee-test-host-deps += build-optee-client
+endif
+ifeq ($(GP_TESTS),1)
+optee-test-host-deps += optee-test-do-patch
+endif
+
+.PHONY: build-optee-test-host
+build-optee-test-host:: $(optee-test-host-deps)
+build-optee-test-host:: $(ndk)
+	$(ECHO) '  BUILD   $@'
+	+$(Q)$(NDK-BUILD) -C optee_test $(optee-test-common-flags) $(optee-test-host-flags)
+
+clean-optee-test-host:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)rm -rf optee_test/libs optee_test/obj
 
 .PHONY: optee-test-do-patch
 optee-test-do-patch:
-	$(Q)$(MAKE) -C optee_test $(optee-test-flags) patch
+	$(Q)$(MAKE) -C optee_test $(optee-test-common-flags) patch
 
+build-optee-test: build-optee-test-host build-optee-test-ta
+
+clean-optee-test: clean-optee-test-host clean-optee-test-ta
 
 #
 # aes-perf (AES crypto performance test)
@@ -623,7 +635,7 @@ endif
 build-aes-perf-host:: $(aes-perf-host-deps)
 build-aes-perf-host:: $(ndk)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(NDK-BUILD) -C aes-perf $(aes-perf-host-flags)
+	+$(Q)$(NDK-BUILD) -C aes-perf $(aes-perf-host-flags)
 
 clean-aes-perf-host:
 	$(ECHO) '  CLEAN   $@'
@@ -667,7 +679,7 @@ endif
 build-sha-perf-host:: $(sha-perf-host-deps)
 build-sha-perf-host:: $(ndk)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(NDK-BUILD) -C sha-perf $(sha-perf-host-flags)
+	+$(Q)$(NDK-BUILD) -C sha-perf $(sha-perf-host-flags)
 
 clean-sha-perf-host:
 	$(ECHO) '  CLEAN   $@'
@@ -754,7 +766,8 @@ install-deps += build-sha-perf
 endif
 
 install:: $(install-deps)
-install:: install-optee-client install-optee-linuxdriver install-aes-perf #install-optee-test
+install:: install-optee-client install-optee-linuxdriver install-aes-perf install-sha-perf
+install:: install-optee-test
 
 adb-init:
 	$(ECHO) '  ADBROOT'
@@ -775,7 +788,7 @@ install-optee-linuxdriver: | adb-init
 
 # FIXME client apps must be built with ndk-build
 install-optee-test: | adb-init
-	$(call add-file,/system/bin/xtest,optee_test/out/xtest/xtest,755)
+	$(call add-file,/system/bin/xtest,optee_test/libs/arm64-v8a/xtest,755)
 	$(call add-dir,/system/lib/optee_armtz,755)
 	$(call add-file,/system/lib/optee_armtz/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta,optee_test/out/ta/rpc_test/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta,444)
 	$(call add-file,/system/lib/optee_armtz/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta,optee_test/out/ta/crypt/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta,444)
@@ -783,20 +796,22 @@ install-optee-test: | adb-init
 	$(call add-file,/system/lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta,optee_test/out/ta/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta,444)
 	$(call add-file,/system/lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta,optee_test/out/ta/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta,444)
 	$(call add-file,/system/lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta,optee_test/out/ta/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta,optee_test/out/ta/GP_TTA_TCF/534d4152-542d-4353-4c542d54412d3031.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta,optee_test/out/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d5354.ta,optee_test/out/ta/GP_TTA_testingClientAPI/534d4152-542d-4353-4c542d54412d5354.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d5355.ta,optee_test/out/ta/GP_TTA_answerSuccessTo_OpenSession_Invoke/534d4152-542d-4353-4c542d54412d5355.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta,optee_test/out/ta/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-4d4c54494e535443.ta,optee_test/out/ta/GP_TTA_TCF_MultipleInstanceTA/534d4152-5443-534c-4d4c54494e535443.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-53474c494e535443.ta,optee_test/out/ta/GP_TTA_TCF_SingleInstanceTA/534d4152-5443-534c-53474c494e535443.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5441544346494341.ta,optee_test/out/ta/GP_TTA_TCF_ICA/534d4152-5443-534c-5441544346494341.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5443525950544f31.ta,optee_test/out/ta/GP_TTA_Crypto/534d4152-5443-534c-5443525950544f31.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5444415441535431.ta,optee_test/out/ta/GP_TTA_DS/534d4152-5443-534c-5444415441535431.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-54455252544f4f53.ta,optee_test/out/ta/GP_TTA_answerErrorTo_OpenSession/534d4152-5443-534c-54455252544f4f53.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-544f53345041524d.ta,optee_test/out/ta/GP_TTA_check_OpenSession_with_4_parameters/534d4152-5443-534c-544f53345041524d.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5454434649434132.ta,optee_test/out/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454434649434132.ta,444)
-	$(IFGP)$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta,optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54494d45415049.ta,444)
+ifeq ($(GP_TESTS),1)
+	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta,optee_test/out/ta/GP_TTA_TCF/534d4152-542d-4353-4c542d54412d3031.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta,optee_test/out/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d5354.ta,optee_test/out/ta/GP_TTA_testingClientAPI/534d4152-542d-4353-4c542d54412d5354.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d5355.ta,optee_test/out/ta/GP_TTA_answerSuccessTo_OpenSession_Invoke/534d4152-542d-4353-4c542d54412d5355.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta,optee_test/out/ta/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-4d4c54494e535443.ta,optee_test/out/ta/GP_TTA_TCF_MultipleInstanceTA/534d4152-5443-534c-4d4c54494e535443.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-53474c494e535443.ta,optee_test/out/ta/GP_TTA_TCF_SingleInstanceTA/534d4152-5443-534c-53474c494e535443.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5441544346494341.ta,optee_test/out/ta/GP_TTA_TCF_ICA/534d4152-5443-534c-5441544346494341.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5443525950544f31.ta,optee_test/out/ta/GP_TTA_Crypto/534d4152-5443-534c-5443525950544f31.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5444415441535431.ta,optee_test/out/ta/GP_TTA_DS/534d4152-5443-534c-5444415441535431.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-54455252544f4f53.ta,optee_test/out/ta/GP_TTA_answerErrorTo_OpenSession/534d4152-5443-534c-54455252544f4f53.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-544f53345041524d.ta,optee_test/out/ta/GP_TTA_check_OpenSession_with_4_parameters/534d4152-5443-534c-544f53345041524d.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5454434649434132.ta,optee_test/out/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454434649434132.ta,444)
+	$(call add-file,/system/lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta,optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54494d45415049.ta,444)
+endif
 
 install-aes-perf: | adb-init
 	$(call add-file,/system/bin/aes-perf,aes-perf/libs/arm64-v8a/aes-perf,755)
