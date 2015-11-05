@@ -501,10 +501,11 @@ build-grub: $(GRUB)
 
 grubaa64.efi:: grub/grub-mkimage grub-force
 	$(ECHO) '  GEN    $@'
-	$(Q)cd grub ; grub-mkimage --output=../$@ \
+	$(Q)cd grub ; ./grub-mkimage --output=../$@ \
 		--config=../grub.configfile \
 		--format=arm64-efi \
 		--directory=grub-core \
+		--prefix=/boot/grub \
 		configfile fat linux normal help part_gpt
 
 grub/grub-mkimage: $(aarch64-linux-gnu-gcc) grub/Makefile grub-force
@@ -526,7 +527,8 @@ clean-grub:
 
 distclean-grub:
 	$(ECHO) '  DISTCLEAN   $@'
-	$(Q)if [ -e grub/Makefile ] ; then $(MAKE) -C grub maintainer-clean ; fi
+	$(Q)if [ -e grub/Makefile ] ; then $(MAKE) -C grub distclean ; fi
+	$(Q)rm -f grub/configure
 
 #
 # Download nvme.img
