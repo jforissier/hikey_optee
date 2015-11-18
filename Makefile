@@ -91,6 +91,7 @@ help:
 	@echo "  fastboot flash nvme $(NVME)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
 	@echo "  # Set J15 pins 1-2 closed 3-4 open 5-6 open (boot from eMMC)"
+	@echo "Use 'make flash' to run all the above commands"
 
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
@@ -738,4 +739,17 @@ build-sha-perf:: $(aarch64-linux-gnu-gcc)
 clean-sha-perf:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf sha-perf/out
+
+.PHONY: flash
+flash:
+	$(ECHO) '  FLASH   $(LLOADER)'
+	$(Q)sudo python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
+	$(ECHO) '  FLASH   $(PTABLE)'
+	$(Q)fastboot flash ptable $(PTABLE)
+	$(ECHO) '  FLASH   $(FIP)'
+	$(Q)fastboot flash fastboot $(FIP)
+	$(ECHO) '  FLASH   $(NVME)'
+	$(Q)fastboot flash nvme $(NVME)
+	$(ECHO) '  FLASH   $(BOOT-IMG)'
+	$(Q)fastboot flash boot $(BOOT-IMG)
 
