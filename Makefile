@@ -18,6 +18,11 @@ NSU ?= 64
 # Secure kernel (OP-TEE OS): 32 or 64bit
 SK ?= 64
 
+# Uncomment to enable
+#WITH_STRACE ?= 1
+
+.PHONY: FORCE
+
 .PHONY: _all
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
@@ -55,6 +60,10 @@ help:
 	@echo "      [GRUB = $(GRUB)]"
 	@echo "      [INITRAMFS = $(INITRAMFS)], contains:"
 	@echo "          [busybox/*]"
+	@if [ $(WITH_STRACE) ]; then \
+		echo "          [STRACE = $(STRACE)]"; \
+	 fi
+	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
 	@echo "          [OPTEE-TEST = optee_test/out/xtest/xtest" \
@@ -90,6 +99,7 @@ help:
 	@echo "  fastboot flash nvme $(NVME)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
 	@echo "  # Set J15 pins 1-2 closed 3-4 open 5-6 open (boot from eMMC)"
+	@echo "Use 'make flash' to run all the above commands"
 
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
@@ -319,7 +329,7 @@ clean-bl1-bl2-bl31-fip:
 #
 
 LLOADER = l-loader/l-loader.bin
-PTABLE = l-loader/ptable.img
+PTABLE = l-loader/ptable-linux-4g.img
 
 ifneq ($(filter all build-bl1,$(MAKECMDGOALS)),)
 lloader-deps += build-bl1
@@ -335,14 +345,16 @@ endif
 #   DEPS    build/hikey/debug/bl31/bl31.ld.d
 #   DEPS    build/hikey/debug/bl31/bl31.ld.d
 .PHONY: build-lloader
-build-lloader:: $(lloader-deps)
+build-lloader:: $(arm-linux-gnueabihf-gcc) $(lloader-deps)
 build-lloader $(LLOADER)::
 	$(ECHO) '  BUILD   build-lloader'
 	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) CROSS_COMPILE="$(CROSS_COMPILE32)" l-loader.bin
 
-build-ptable $(PTABLE):
+build-ptable: $(PTABLE)
+
+$(PTABLE):
 	$(ECHO) '  BUILD   build-ptable'
-	$(Q)$(MAKE) -C l-loader ptable.img
+	$(Q)$(MAKE) -C l-loader PTABLE_LST=linux-4g ptable.img
 
 clean-lloader-ptable:
 	$(ECHO) '  CLEAN   $@'
@@ -449,6 +461,11 @@ endif
 ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-test
 endif
+ifeq ($(WITH_STRACE),1)
+ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
+initramfs-deps += build-strace
+endif
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -456,11 +473,16 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 	$(ECHO) "  GEN    $(INITRAMFS)"
 	$(Q)(cd gen_rootfs && ../linux/usr/gen_init_cpio filelist-all.txt) | gzip >$(INITRAMFS)
 
-gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.txt
+.initramfs_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo IFGP=$(IFGP) IFSTRACE=$(IFSTRACE) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.txt .initramfs_exports
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
-	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; \
+	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; export IFSTRACE=$(IFSTRACE) ; \
 	    export MULTIARCH=$(MULTIARCH) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
@@ -474,6 +496,7 @@ clean-initramfs:
 	$(ECHO) "  CLEAN  $@"
 	$(Q)cd gen_rootfs ; ./generate-cpio-rootfs.sh hikey clean
 	$(Q)rm -f $(INITRAMFS) gen_rootfs/filelist-all.txt gen_rootfs/filelist-final.txt
+	$(Q)rm -f .initramfs_exports .initramfs_exports.new
 
 #
 # Grub
@@ -498,10 +521,11 @@ build-grub: $(GRUB)
 
 grubaa64.efi:: grub/grub-mkimage grub-force
 	$(ECHO) '  GEN    $@'
-	$(Q)cd grub ; grub-mkimage --output=../$@ \
+	$(Q)cd grub ; ./grub-mkimage --output=../$@ \
 		--config=../grub.configfile \
 		--format=arm64-efi \
 		--directory=grub-core \
+		--prefix=/boot/grub \
 		configfile fat linux normal help part_gpt
 
 grub/grub-mkimage: $(aarch64-linux-gnu-gcc) grub/Makefile grub-force
@@ -523,7 +547,8 @@ clean-grub:
 
 distclean-grub:
 	$(ECHO) '  DISTCLEAN   $@'
-	$(Q)if [ -e grub/Makefile ] ; then $(MAKE) -C grub maintainer-clean ; fi
+	$(Q)if [ -e grub/Makefile ] ; then $(MAKE) -C grub distclean ; fi
+	$(Q)rm -f grub/configure
 
 #
 # Download nvme.img
@@ -704,4 +729,67 @@ build-sha-perf:: $(aarch64-linux-gnu-gcc)
 clean-sha-perf:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf sha-perf/out
+
+define fastboot-flash
+$(Q)stderr=$$(fastboot flash $1 $2 2>&1) || echo $${stderr}
+endef
+
+.PHONY: flash
+flash:
+	$(ECHO) '  FLASH   $(LLOADER)'
+	$(Q)sudo python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
+	$(ECHO) '  FLASH   $(PTABLE)'
+	$(call fastboot-flash,ptable,$(PTABLE))
+	$(ECHO) '  FLASH   $(FIP)'
+	$(call fastboot-flash,fastboot,$(FIP))
+	$(ECHO) '  FLASH   $(NVME)'
+	$(call fastboot-flash,nvme,$(NVME))
+	$(ECHO) '  FLASH   $(BOOT-IMG)'
+	$(call fastboot-flash,boot,$(BOOT-IMG))
+
+#
+# strace
+#
+
+ifeq ($(WITH_STRACE),1)
+
+STRACE = strace/strace
+STRACE_EXPORTS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+build-strace $(STRACE): strace/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C strace
+
+.strace_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo $(STRACE_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+strace/Makefile: strace/configure .strace_exports
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(STRACE_EXPORTS) ; \
+	    cd strace ; ./configure --host=$(MULTIARCH)
+
+strace/configure: strace/bootstrap
+	$(ECHO) ' GEN      $@'
+	$(Q)cd strace ; ./bootstrap
+
+.PHONY: clean-strace
+clean-strace:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
+	$(Q)rm -f .strace_exports .strace_exports.new
+
+.PHONY: cleaner-strace
+cleaner-strace:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f strace/Makefile strace/configure
+
+cleaner: cleaner-strace
+
+else
+
+IFSTRACE=\#
+
+endif
 

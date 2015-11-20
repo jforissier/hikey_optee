@@ -2,6 +2,8 @@
 /busybox
 /.edk2basetools
 /.linuxbuildinprogress
+/.strace_exports
+/.initramfs_exports
 /nvme.img
 /boot.img
 /initramfs.cpio.gz
