@@ -327,7 +327,7 @@ clean-bl1-bl2-bl31-fip:
 #
 
 LLOADER = l-loader/l-loader.bin
-PTABLE = l-loader/ptable.img
+PTABLE = l-loader/ptable-linux-4g.img
 
 ifneq ($(filter all build-bl1,$(MAKECMDGOALS)),)
 lloader-deps += build-bl1
@@ -350,7 +350,7 @@ build-lloader $(LLOADER)::
 
 build-ptable $(PTABLE):
 	$(ECHO) '  BUILD   build-ptable'
-	$(Q)$(MAKE) -C l-loader ptable.img
+	$(Q)$(MAKE) -C l-loader PTABLE_LST=linux-4g ptable.img
 
 clean-lloader-ptable:
 	$(ECHO) '  CLEAN   $@'
