@@ -473,17 +473,21 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 	$(ECHO) "  GEN    $(INITRAMFS)"
 	$(Q)(cd gen_rootfs && ../linux/usr/gen_init_cpio filelist-all.txt) | gzip >$(INITRAMFS)
 
+# Warning:
+# '=' not ':=' because we don't want the right-hand side to be evaluated
+# immediately. This would be a problem when IFGP is '#'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)'
+
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
-	$(Q)echo IFGP=$(IFGP) IFSTRACE=$(IFSTRACE) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)echo $(INITRAMFS_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
 	$(Q)rm -rf $@.new
 
 gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.txt .initramfs_exports
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
-	    export TOP=$(PWD) ; export IFGP=$(IFGP) ; export IFSTRACE=$(IFSTRACE) ; \
-	    export MULTIARCH=$(MULTIARCH) ; \
+	    export $(INITRAMFS_EXPORTS) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
 gen_rootfs/filelist-final.txt: .busybox $(host-gcc)
