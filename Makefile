@@ -21,6 +21,8 @@ SK ?= 64
 # Uncomment to enable
 #WITH_STRACE ?= 1
 
+.PHONY: FORCE
+
 .PHONY: _all
 _all:
 	$(Q)$(MAKE) all $(filter-out _all,$(MAKECMDGOALS))
@@ -471,7 +473,12 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 	$(ECHO) "  GEN    $(INITRAMFS)"
 	$(Q)(cd gen_rootfs && ../linux/usr/gen_init_cpio filelist-all.txt) | gzip >$(INITRAMFS)
 
-gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.txt
+.initramfs_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo IFGP=$(IFGP) IFSTRACE=$(IFSTRACE) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.txt .initramfs_exports
 	$(ECHO) '  GEN    $@'
 	$(Q)cat gen_rootfs/filelist-final.txt | sed '/fbtest/d' >$@
 	$(Q)export KERNEL_VERSION=`cd linux ; $(MAKE) --no-print-directory -s kernelversion` ;\
@@ -489,6 +496,7 @@ clean-initramfs:
 	$(ECHO) "  CLEAN  $@"
 	$(Q)cd gen_rootfs ; ./generate-cpio-rootfs.sh hikey clean
 	$(Q)rm -f $(INITRAMFS) gen_rootfs/filelist-all.txt gen_rootfs/filelist-final.txt
+	$(Q)rm -f .initramfs_exports .initramfs_exports.new
 
 #
 # Grub
@@ -781,7 +789,6 @@ build-strace $(STRACE): strace/Makefile
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C strace
 
-.PHONY: FORCE
 .strace_exports: FORCE
 	$(ECHO) '  CHK     $@'
 	$(Q)echo $(STRACE_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
