@@ -60,3 +60,24 @@ file /lib/optee_armtz/614789f2-39c0-4ebf-b23592b32ac107ed.ta ${TOP}/sha-perf/out
 
 # strace tool
 ${IFSTRACE}file /bin/strace ${TOP}/strace/strace 755 0 0
+
+# Wireless tools
+${IFWTOOLS}file /bin/iwconfig ${TOP}/wireless_tools/iwconfig 755 0 0
+${IFWTOOLS}file /bin/iwevent ${TOP}/wireless_tools/iwevent 755 0 0
+${IFWTOOLS}file /bin/iwgetid ${TOP}/wireless_tools/iwgetid 755 0 0
+${IFWTOOLS}file /bin/iwlist ${TOP}/wireless_tools/iwlist 755 0 0
+${IFWTOOLS}file /bin/iwpriv ${TOP}/wireless_tools/iwpriv 755 0 0
+${IFWTOOLS}file /bin/iwspy ${TOP}/wireless_tools/iwspy 755 0 0
+${IFWTOOLS}dir /lib/${MULTIARCH} 755 0 0
+${IFWTOOLS}file /lib/${MULTIARCH}/libiw.so.29 ${TOP}/wireless_tools/libiw.so.29 755 0 0
+
+# 'iw' command (wireless configuration)
+${IFIW}file /bin/iw ${TOP}/iw/iw 755 0 0
+${IFIW}dir /lib/${MULTIARCH} 755 0 0
+${IFIW}file /lib/${MULTIARCH}/libnl-genl-3.so.200 ${TOP}/out/lib/libnl-genl-3.so.200 755 0 0
+${IFIW}file /lib/${MULTIARCH}/libnl-3.so.200 ${TOP}/out/lib/libnl-3.so.200 755 0 0
+
+# WiFi firmware
+${IFWLFW}dir /lib/firmware 755 0 0
+${IFWLFW}dir /lib/firmware/ti-connectivity 755 0 0
+${IFWLFW}file /lib/firmware/ti-connectivity/wl18xx-fw-4.bin ${TOP}/downloads/wl18xx-fw-4.bin 644 0 0

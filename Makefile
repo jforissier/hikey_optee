@@ -20,6 +20,12 @@ SK ?= 64
 
 # Uncomment to enable
 #WITH_STRACE ?= 1
+# iwconfig etc.
+#WITH_WIRELESS_TOOLS ?= 1
+# Firmware for HiKey Wi-Fi chip
+WITH_WL18xx_FW ?= 1
+# 'iw' wireless lan configuration tool
+WITH_IW ?= 1
 
 .PHONY: FORCE
 
@@ -465,6 +471,16 @@ ifeq ($(WITH_STRACE),1)
 ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
 initramfs-deps += build-strace
 endif
+ifeq ($(WITH_WIRELESS_TOOLS),1)
+ifneq ($(filter all build-iw,$(MAKECMDGOALS)),)
+initramfs-deps += build-wireless-tools
+endif
+endif
+ifeq ($(WITH_IW),1)
+ifneq ($(filter all build-iw,$(MAKECMDGOALS)),)
+initramfs-deps += build-iw
+endif
+endif
 endif
 
 .PHONY: build-initramfs
@@ -810,7 +826,7 @@ strace/configure: strace/bootstrap
 .PHONY: clean-strace
 clean-strace:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
+	$(Q)export $(STRACE_EXPORTS) ; [ -d strace ] && $(MAKE) -C strace clean || :
 	$(Q)rm -f .strace_exports .strace_exports.new
 
 .PHONY: cleaner-strace
@@ -826,3 +842,128 @@ IFSTRACE=\#
 
 endif
 
+#
+# Wireless tools (iwconfig...)
+#
+
+ifeq ($(WITH_WIRELESS_TOOLS),1)
+
+WIRELESS_TOOLS_URL = http://www.labs.hpe.com/personal/Jean_Tourrilhes/Linux/wireless_tools.29.tar.gz
+WIRELESS_TOOLS_TARBALL = $(call filename,$(WIRELESS_TOOLS_URL))
+WIRELESS_TOOLS_DIR = $(WIRELESS_TOOLS_TARBALL:.tar.gz=)
+
+WIRELESS_TOOLS_FLAGS := CC='$(CROSS_COMPILE_HOST)gcc' BUILD_STATIC=y
+
+.wireless_tools: downloads/$(WIRELESS_TOOLS_TARBALL)
+	$(ECHO) '  TAR     wireless_tools'
+	$(Q)rm -rf $(WIRELESS_TOOLS_DIR) wireless_tools
+	$(Q)tar xf downloads/$(WIRELESS_TOOLS_TARBALL) && mv $(WIRELESS_TOOLS_DIR) wireless_tools
+	$(Q)touch $@
+
+downloads/$(WIRELESS_TOOLS_TARBALL):
+	$(ECHO) '  CURL    $@'
+	$(Q)$(CURL) $(WIRELESS_TOOLS_URL) -o $@
+
+cleaner-wireless-tools:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -rf (WIRELESS_TOOLS_DIR) wireless_tools .wireless_tools
+
+cleaner: cleaner-wireless-tools
+
+distclean-wireless-tools:
+	$(ECHO) '  DISTCL  $@'
+	$(Q)rm -f downloads/$(WIRELESS_TOOLS_TARBALL)
+
+distclean: distclean-wireless-tools
+
+build-wireless-tools: .wireless_tools $(host-gcc)
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C wireless_tools $(WIRELESS_TOOLS_FLAGS)
+
+clean-wireless-tools:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)[ -d wireless_tools ] && $(MAKE) -C wireless_tools clean
+
+clean: clean-wireless-tools
+	
+else
+
+IFWIRELESS_TOOLS=\#
+
+endif
+
+#
+# Wi-Fi firmware binary
+#
+
+ifeq ($(WITH_WL18xx_FW),1)
+
+WL18xx_FW_URL = http://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/plain/ti-connectivity/wl18xx-fw-4.bin
+
+downloads/wl18xx-fw-4.bin:
+	$(ECHO) '  CURL    $@'
+	$(Q)$(CURL) $(WL18xx_FW_URL) -o $@
+
+else
+
+IFWLFW=\#
+
+endif
+
+#
+# iw tool
+#
+
+ifeq ($(WITH_IW),1)
+
+LIBNL_FLAGS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+ifneq ($(filter clean cleaner distclean clean-libnl,$(MAKECMDGOALS)),)
+clean-libnl-deps += clean-iw
+endif
+
+libnl/configure: libnl/configure.ac
+	$(ECHO) '  GEN     $@'
+	$(Q)cd libnl && ./autogen.sh
+
+libnl/Makefile: libnl/configure libnl/Makefile.am
+	$(ECHO) '  GEN     $@'
+	$(Q)cd libnl && ./configure --quiet --prefix=$(CURDIR)/out \
+		--host=$(MULTIARCH)
+
+build-libnl: libnl/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C libnl install $(LIBNL_FLAGS)
+
+clean-libnl: $(clean-libnl-deps)
+	$(ECHO) '  CLEAN   $@'
+	$(Q)[ -f libnl/Makefile ] && $(MAKE) -C libnl clean || :
+	$(Q)rm -rf libnl/out
+
+distclean-libnl: clean-libnl
+	$(ECHO) '  DISTCL  $@'
+	$(Q)[ -f libnl/Makefile ] && make -C libnl distclean || :
+
+IW_EXPORTS := PKG_CONFIG_PATH=../libnl/out/lib/pkgconfig
+
+IW_FLAGS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+ifneq ($(filter all build-libnl,$(MAKECMDGOALS)),)
+iw-deps += build-libnl
+endif
+
+build-iw: $(iw-deps)
+	$(ECHO) '  BUILD   $@'
+	$(Q)export $(IW_EXPORTS) ; $(MAKE) -C iw $(IW_FLAGS)
+	
+clean-iw:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)[ -d libnl/out ] && { export $(IW_EXPORTS) ; $(MAKE) -C iw clean $(IW_FLAGS) ; } || :
+
+clean: clean-iw
+
+else
+
+IFIW=\#
+
+endif
