@@ -17,6 +17,8 @@ endif
 NSU ?= 64
 # Secure kernel (OP-TEE OS): 32 or 64bit
 SK ?= 64
+# Secure user mode (Trusted Apps): 32 or 64-bit
+SU ?= 32
 
 # Uncomment to enable
 #WITH_STRACE ?= 1
@@ -86,6 +88,7 @@ help:
 	@echo
 	@echo "Use 'make SK=32'  for 32-bit secure kernel (OP-TEE OS) [default 64]"
 	@echo "    'make NSU=32' for 32-bit non-secure user-mode [default 64]"
+	@echo "    'make SU=64'  for 64-bit secure user-mode [default 32, requires SK=64]"
 	@echo
 	@echo "Flashing micro-howto:"
 	@echo "  # First time flashing the board (or broken eMMC):"
@@ -149,6 +152,14 @@ else
 CROSS_COMPILE_HOST := $(CROSS_COMPILE32)
 host-gcc := $(arm-linux-gnueabihf-gcc)
 MULTIARCH := arm-linux-gnueabihf
+endif
+
+ifeq ($(SU),64)
+CROSS_COMPILE_S_USER := $(CROSS_COMPILE)
+ta-gcc := $(aarch64-linux-gnu-gcc)
+else
+CROSS_COMPILE_S_USER := $(CROSS_COMPILE32)
+ta-gcc := $(arm-linux-gnueabihf-gcc)
 endif
 
 #
@@ -638,6 +649,7 @@ optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 # and the problem disappears.
 ifeq ($(SK),64)
 optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
+optee-os-flags += CROSS_COMPILE_ta_arm64="$(CROSS_COMPILE)"
 endif
 
 .PHONY: build-bl32
@@ -674,8 +686,8 @@ all: build-optee-test
 clean: clean-optee-test
 
 optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
-		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
+		    CROSS_COMPILE_TA="$(CROSS_COMPILE_S_USER)" \
+		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU) \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
@@ -697,7 +709,7 @@ endif
 
 .PHONY: build-optee-test
 build-optee-test:: $(optee-test-deps)
-build-optee-test:: $(aarch64-linux-gnu-gcc)
+build-optee-test:: $(ta-gcc)
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
 
@@ -718,8 +730,8 @@ optee-test-do-patch:
 #
 
 aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
-		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		  CROSS_COMPILE_TA="$(CROSS_COMPILE_S_USER)" \
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU)
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 aes-perf-deps += build-bl32
@@ -730,7 +742,7 @@ endif
 
 .PHONY: build-aes-perf
 build-aes-perf:: $(aes-perf-deps)
-build-aes-perf:: $(aarch64-linux-gnu-gcc)
+build-aes-perf:: $(ta-gcc)
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C aes-perf $(aes-perf-flags)
 
@@ -743,8 +755,8 @@ clean-aes-perf:
 #
 
 sha-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
-		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		  CROSS_COMPILE_TA="$(CROSS_COMPILE_S_USER)" \
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU)
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 sha-perf-deps += build-bl32
@@ -755,7 +767,7 @@ endif
 
 .PHONY: build-sha-perf
 build-sha-perf:: $(sha-perf-deps)
-build-sha-perf:: $(aarch64-linux-gnu-gcc)
+build-sha-perf:: $(ta-gcc)
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C sha-perf $(sha-perf-flags)
 
