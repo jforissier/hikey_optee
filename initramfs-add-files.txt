@@ -81,3 +81,6 @@ ${IFIW}file /lib/${MULTIARCH}/libnl-3.so.200 ${TOP}/out/lib/libnl-3.so.200 755 0
 ${IFWLFW}dir /lib/firmware 755 0 0
 ${IFWLFW}dir /lib/firmware/ti-connectivity 755 0 0
 ${IFWLFW}file /lib/firmware/ti-connectivity/wl18xx-fw-4.bin ${TOP}/downloads/wl18xx-fw-4.bin 644 0 0
+
+# 'mmc' command (eMMC status/configuration)
+${IFMMCUTILS}file /bin/mmc ${TOP}/mmc-utils/mmc 755 0 0

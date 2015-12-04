@@ -23,9 +23,11 @@ SK ?= 64
 # iwconfig etc.
 #WITH_WIRELESS_TOOLS ?= 1
 # Firmware for HiKey Wi-Fi chip
-WITH_WL18xx_FW ?= 1
+#WITH_WL18xx_FW ?= 1
 # 'iw' wireless lan configuration tool
-WITH_IW ?= 1
+#WITH_IW ?= 1
+# mmc (mmc-utils)
+WITH_MMC-UTILS ?= 1
 
 .PHONY: FORCE
 
@@ -481,6 +483,11 @@ ifneq ($(filter all build-iw,$(MAKECMDGOALS)),)
 initramfs-deps += build-iw
 endif
 endif
+ifeq ($(WITH_MMC-UTILS),1)
+ifneq ($(filter all build-mmc-utils,$(MAKECMDGOALS)),)
+initramfs-deps += build-mmc-utils
+endif
+endif
 endif
 
 .PHONY: build-initramfs
@@ -492,7 +499,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -965,5 +972,29 @@ clean: clean-iw
 else
 
 IFIW=\#
+
+endif
+
+#
+# mmc-utils
+#
+
+MMC-UTILS_FLAGS := CC='$(CROSS_COMPILE_HOST)gcc'
+
+ifeq ($(WITH_MMC-UTILS),1)
+
+build-mmc-utils:
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C mmc-utils $(MMC-UTILS_FLAGS)
+
+clean-mmc-utils:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C mmc-utils clean
+
+clean: clean-mmc-utils
+
+else
+
+IFMMCUTILS=\#
 
 endif

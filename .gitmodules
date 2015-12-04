@@ -48,3 +48,6 @@
 [submodule "libnl"]
 	path = libnl
 	url = https://github.com/tgraf/libnl.git
+[submodule "mmc-utils"]
+	path = mmc-utils
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/cjb/mmc-utils.git
