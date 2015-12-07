@@ -22,13 +22,15 @@
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
 [submodule "optee_client"]
 	path = optee_client
-	url = https://github.com/OP-TEE/optee_client.git
+	url = https://github.com/jforissier/optee_client.git
+	branch = rpmb
 [submodule "optee_test"]
 	path = optee_test
 	url = https://github.com/OP-TEE/optee_test.git
 [submodule "optee_os"]
 	path = optee_os
-	url = https://github.com/OP-TEE/optee_os.git
+	url = https://github.com/jforissier/optee_os.git
+	branch = rpmb
 [submodule "aes-perf"]
 	path = aes-perf
 	url = https://github.com/linaro-swg/aes-perf.git
