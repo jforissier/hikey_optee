@@ -27,14 +27,14 @@ NVME-IMG = downloads/nvme.img
 
 BOOT-IMG = downloads/boot_fat.uefi.img
 CACHE-IMG = downloads/cache.img
-USERDATA-IMG = downloads/userdata.img
+USERDATA-IMG = downloads/userdata-4gb.img
 SYSTEM-IMG = downloads/system.img
 
 images = $(NVME-IMG) $(PTABLE-IMG) $(BOOT-IMG) $(SYSTEM-IMG) $(CACHE-IMG) $(USERDATA-IMG)
 compressed-images = downloads/boot_fat.uefi.img.tar.xz \
 		downloads/cache.img.tar.xz \
 		downloads/system.img.tar.xz \
-		downloads/userdata.img.tar.xz
+		downloads/userdata-4gb.img.tar.xz
 
 all: build-lloader build-fip build-optee-client build-optee-linuxdriver build-optee-test
 all: build-aes-perf build-sha-perf
@@ -175,24 +175,29 @@ distclean-arm-gcc:
 	$(ECHO) '  DISTCL  $@'
 	$(Q)rm -f downloads/$(ARM_GCC_TARBALL)
 
-downloads/$(ANDROID_SDK_TARBALL):
+downloads/$(NDK_TARBALL):
 	$(ECHO) '  CURL    $@'
-	$(Q)$(CURL) $(ANDROID_SDK_URL) -o $@
+	$(Q)$(CURL) $(NDK_URL) -o $@
+	$(ECHO) '  CHMOD   $@'
+	$(Q)chmod +x $@
 
-toolchains/$(ANDROID_SDK_DIR): downloads/$(ANDROID_SDK_TARBALL)
-	$(ECHO) '  TAR     $@'
+toolchains/$(NDK_DIR): downloads/$(NDK_TARBALL)
+	$(ECHO) '  EXTRACT $@'
 	$(Q)rm -rf $@
-	$(Q)cd toolchains && tar xf ../downloads/$(ANDROID_SDK_TARBALL)
+	$(Q)cd toolchains && ../downloads/$(NDK_TARBALL) >/dev/null
 	$(Q)touch $@
 
-cleaner-android-sdk:
+cleaner-ndk:
 	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf toolchains/$(ANDROID_SDK_DIR)
+	$(Q)rm -rf toolchains/$(NDK_DIR)
 
-distclean-android-sdk:
+distclean-ndk:
 	$(ECHO) '  DISTCL  $@'
-	$(Q)rm -f downloads/$(ANDROID_SDK_TARBALL)
+	$(Q)rm -f downloads/$(NDK_TARBALL)
 
+cleaner: cleaner-ndk
+
+distclean: distclean-ndk
 
 #
 # UEFI
@@ -387,7 +392,7 @@ clean-linux-dtb:
 define make-dl-rule
 $(1):
 	$(ECHO) '  CURL    $(1)'
-	$(Q)$(CURL) $(2)/$(1) -o $(1)
+	$(Q)$(CURL) $(2)/$(notdir $(1)) -o $(1)
 
 cleaner-$(1):
 	$(ECHO) '  RM      $(1)'
@@ -412,7 +417,7 @@ downloads/system.img.tar.xz:
 	@echo "$@ cannot be downloaded automatically because it is protected"
 	@echo "by a license agreement."
 	@echo "Please copy/paste the following URL in a web browser to get it:"
-	@echo "  $(SNAP_AOSP_URL)/$@"
+	@echo "  $(SNAP_AOSP_URL)/$(notdir $@)"
 	@echo ==========
 	@false
 
