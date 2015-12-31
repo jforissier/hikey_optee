@@ -401,12 +401,12 @@ cleaner-$(1):
 cleaner: cleaner-$(1)
 endef
 
-SNAP_UEFI_URL = http://builds.96boards.org/snapshots/hikey/linaro/uefi/latest
+SNAP_UEFI_URL = https://builds.96boards.org/snapshots/hikey/linaro/uefi/75
 
 $(eval $(call make-dl-rule,$(PTABLE-IMG),$(SNAP_UEFI_URL)))
 $(eval $(call make-dl-rule,$(NVME-IMG),$(SNAP_UEFI_URL)))
 
-SNAP_AOSP_URL = https://builds.96boards.org/snapshots/hikey/linaro/aosp/latest
+SNAP_AOSP_URL = https://builds.96boards.org/snapshots/hikey/linaro/aosp/185
 
 $(eval $(call make-dl-rule,$(BOOT-IMG).tar.xz,$(SNAP_AOSP_URL)))
 $(eval $(call make-dl-rule,$(CACHE-IMG).tar.xz,$(SNAP_AOSP_URL)))
