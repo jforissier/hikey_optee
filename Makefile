@@ -27,14 +27,14 @@ NVME-IMG = downloads/nvme.img
 
 BOOT-IMG = downloads/boot_fat.uefi.img
 CACHE-IMG = downloads/cache.img
-USERDATA-IMG = downloads/userdata-4gb.img
+USERDATA-IMG = downloads/userdata.img
 SYSTEM-IMG = downloads/system.img
 
 images = $(NVME-IMG) $(PTABLE-IMG) $(BOOT-IMG) $(SYSTEM-IMG) $(CACHE-IMG) $(USERDATA-IMG)
 compressed-images = downloads/boot_fat.uefi.img.tar.xz \
 		downloads/cache.img.tar.xz \
 		downloads/system.img.tar.xz \
-		downloads/userdata-4gb.img.tar.xz
+		downloads/userdata.img.tar.xz
 
 all: build-lloader build-fip build-optee-client build-optee-linuxdriver build-optee-test
 all: build-aes-perf build-sha-perf
