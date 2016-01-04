@@ -502,6 +502,7 @@ clean-optee-client:
 optee-os-flags := CROSS_COMPILE="$(CROSS_COMPILE32)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
+optee-os-flags += CFG_CONSOLE_UART=0
 #optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 #optee-os-flags += CFG_WITH_PAGER=y
 
@@ -518,7 +519,7 @@ optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #   'arm-linux-gnueabihf-gcc (Linaro GCC 2014.11) 4.9.3 20141031 (prerelease)'
 # and the problem disappears.
 ifeq ($(SK),64)
-optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
+optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)" CROSS_COMPILE_ta_arm64="$(CROSS_COMPILE)"
 endif
 
 .PHONY: build-bl32
@@ -554,8 +555,9 @@ optee-test-common-flags += CFG_ARM32=y
 endif
 endif
 
+# TODO: now that OP-TEE supports 32- and 64-bit TAs, make it configurable
 optee-test-ta-flags := CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
+		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32 \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
@@ -576,7 +578,7 @@ clean-optee-test-ta:
 	$(Q)rm -rf optee_test/out/ta
 
 optee-test-host-flags := APP_BUILD_SCRIPT=Android.mk NDK_PROJECT_PATH=. APP_ABI=arm64-v8a \
-			 TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+			 TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 optee-test-host-deps += build-bl32
@@ -611,7 +613,7 @@ clean-optee-test: clean-optee-test-host clean-optee-test-ta
 #
 
 aes-perf-ta-flags := CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		     TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		     TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 aes-perf-ta-deps += build-bl32
@@ -655,7 +657,7 @@ clean-aes-perf: clean-aes-perf-host clean-aes-perf-ta
 #
 
 sha-perf-ta-flags := CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		     TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		     TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 sha-perf-ta-deps += build-bl32
@@ -801,6 +803,8 @@ install-optee-test: | adb-init
 	$(call add-file,/system/lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta,optee_test/out/ta/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta,444)
 	$(call add-file,/system/lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta,optee_test/out/ta/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta,444)
 	$(call add-file,/system/lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta,optee_test/out/ta/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta,444)
+	$(call add-file,/system/lib/optee_armtz/e13010e0-2ae1-11e5-896a0002a5d5c51b.ta,optee_test/out/ta/concurrent/e13010e0-2ae1-11e5-896a0002a5d5c51b.ta,444)
+	$(call add-file,/system/lib/optee_armtz/f157cda0-550c-11e5-a6fa0002a5d5c51b.ta,optee_test/out/ta/storage_benchmark/f157cda0-550c-11e5-a6fa0002a5d5c51b.ta,444)
 ifeq ($(GP_TESTS),1)
 	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta,optee_test/out/ta/GP_TTA_TCF/534d4152-542d-4353-4c542d54412d3031.ta,444)
 	$(call add-file,/system/lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta,optee_test/out/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta,444)
