@@ -30,7 +30,7 @@
 [submodule "optee_os"]
 	path = optee_os
 	url = https://github.com/jforissier/optee_os.git
-	branch = rpmb
+	branch = rpmbdev
 [submodule "aes-perf"]
 	path = aes-perf
 	url = https://github.com/linaro-swg/aes-perf.git

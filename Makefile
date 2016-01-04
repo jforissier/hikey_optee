@@ -16,7 +16,8 @@ endif
 # Non-secure user mode (root fs binaries): 32 or 64-bit
 NSU ?= 64
 # Secure kernel (OP-TEE OS): 32 or 64bit
-SK ?= 64
+#SK ?= 64
+SK ?= 32
 
 # Uncomment to enable
 #WITH_STRACE ?= 1
@@ -604,6 +605,7 @@ clean-optee-linuxdriver:
 #
 
 optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
+optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4
 
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
@@ -620,9 +622,10 @@ clean-optee-client:
 
 optee-os-flags := CROSS_COMPILE="$(CROSS_COMPILE32)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
-optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
+optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=4 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
+optee-os-flags += CFG_RPMB_FS=y CFG_ENC_FS=n CFG_RPMB_FS_NO_MAC=y #CFG_RPMB_FS_DEBUG_DATA=y
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
@@ -676,7 +679,7 @@ clean: clean-optee-test
 optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
 		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
-		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
+		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=4
 ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
 ifeq ($(NSU),32)
