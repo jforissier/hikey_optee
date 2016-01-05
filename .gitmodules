@@ -10,8 +10,8 @@
 	url = https://github.com/96boards/l-loader.git
 [submodule "linux"]
 	path = linux
-	url = https://github.com/jforissier/linux.git
-	branch = open-estuary-rpmb 
+	url = https://github.com/96boards/linux.git
+	branch = hikey
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
