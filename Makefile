@@ -623,6 +623,7 @@ optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
+optee-os-flags += CFG_CONSOLE_UART=0
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
@@ -637,7 +638,7 @@ optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 #   'arm-linux-gnueabihf-gcc (Linaro GCC 2014.11) 4.9.3 20141031 (prerelease)'
 # and the problem disappears.
 ifeq ($(SK),64)
-optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
+optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)" CROSS_COMPILE_ta_arm64="$(CROSS_COMPILE)"
 endif
 
 .PHONY: build-bl32
@@ -673,9 +674,10 @@ endif
 all: build-optee-test
 clean: clean-optee-test
 
+# TODO: now that OP-TEE supports 32- and 64-bit TAs, make it configurable
 optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		    CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta \
+		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32 \
 		    O=$(PWD)/optee_test/out #CFG_TEE_TA_LOG_LEVEL=3
 ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
@@ -719,7 +721,7 @@ optee-test-do-patch:
 
 aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 aes-perf-deps += build-bl32
@@ -744,7 +746,7 @@ clean-aes-perf:
 
 sha-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
 		  CROSS_COMPILE_TA="$(CROSS_COMPILE32)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-user_ta
+		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm32
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 sha-perf-deps += build-bl32
