@@ -12,12 +12,6 @@ file /usbnet.sh ${TOP}/usbnet.sh 755 0 0
 file /etc/init.d/optee ${TOP}/init.d.optee 755 0 0
 slink /etc/rc.d/S09_optee /etc/init.d/optee 755 0 0
 
-# OP-TEE device
-dir /lib/modules 755 0 0
-dir /lib/modules/${KERNEL_VERSION} 755 0 0
-file /lib/modules/${KERNEL_VERSION}/optee.ko ${TOP}/optee_linuxdriver/core/optee.ko 755 0 0
-file /lib/modules/${KERNEL_VERSION}/optee_armtz.ko ${TOP}/optee_linuxdriver/armtz/optee_armtz.ko 755 0 0
-
 # OP-TEE client
 file /bin/tee-supplicant ${TOP}/optee_client/out/export/bin/tee-supplicant 755 0 0
 dir /lib/${MULTIARCH} 755 0 0
@@ -39,7 +33,7 @@ ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta ${TOP}/optee
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta ${TOP}/optee_test/out/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5354.ta ${TOP}/optee_test/out/ta/GP_TTA_testingClientAPI/534d4152-542d-4353-4c542d54412d5354.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5355.ta ${TOP}/optee_test/out/ta/GP_TTA_answerSuccessTo_OpenSession_Invoke/534d4152-542d-4353-4c542d54412d5355.ta 444 0 0
-${IFGP}file /lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta ${TOP}/optee_test/out/ta/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta 444 0 0 
+${IFGP}file /lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta ${TOP}/optee_test/out/ta/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-4d4c54494e535443.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_MultipleInstanceTA/534d4152-5443-534c-4d4c54494e535443.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-53474c494e535443.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_SingleInstanceTA/534d4152-5443-534c-53474c494e535443.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5441544346494341.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_ICA/534d4152-5443-534c-5441544346494341.ta 444 0 0
