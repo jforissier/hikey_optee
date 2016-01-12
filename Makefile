@@ -16,8 +16,7 @@ endif
 # Non-secure user mode (root fs binaries): 32 or 64-bit
 NSU ?= 64
 # Secure kernel (OP-TEE OS): 32 or 64bit
-#SK ?= 64
-SK ?= 32
+SK ?= 64
 
 # Uncomment to enable
 #WITH_STRACE ?= 1
