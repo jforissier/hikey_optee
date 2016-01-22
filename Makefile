@@ -624,8 +624,11 @@ optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 #optee-os-flags += CFG_TEE_TA_LOG_LEVEL=4
-optee-os-flags += CFG_RPMB_FS=y CFG_ENC_FS=n #CFG_RPMB_FS_DEBUG_DATA=y
 #optee-os-flags += CFG_TEE_CORE_MALLOC_DEBUG=y
+optee-os-flags += CFG_RPMB_FS=y
+#optee-os-flags += CFG_RPMB_TESTKEY=y
+#optee-os-flags += CFG_ENC_FS=n
+#optee-os-flags += CFG_RPMB_FS_DEBUG_DATA=y
 optee-os-flags += CFG_CONSOLE_UART=0
 
 # 64-bit TEE Core
