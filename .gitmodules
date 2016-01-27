@@ -10,7 +10,8 @@
 	url = https://github.com/96boards/l-loader.git
 [submodule "linux"]
 	path = linux
-	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+	url = https://github.com/96boards/linux.git
+	branch = hikey
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
@@ -44,3 +45,12 @@
 [submodule "strace"]
 	path = strace
 	url = git://git.code.sf.net/p/strace/code
+[submodule "iw"]
+	path = iw
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git
+[submodule "libnl"]
+	path = libnl
+	url = https://github.com/tgraf/libnl.git
+[submodule "mmc-utils"]
+	path = mmc-utils
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/cjb/mmc-utils.git
