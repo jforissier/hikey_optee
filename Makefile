@@ -631,6 +631,7 @@ clean-optee-linuxdriver:
 
 optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
 #optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4
+optee-client-flags += RPMB_EMU=
 
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
@@ -652,7 +653,9 @@ optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_TEE_TA_LOG_LEVEL=4
 #optee-os-flags += CFG_TEE_CORE_MALLOC_DEBUG=y
 optee-os-flags += CFG_RPMB_FS=y
-#optee-os-flags += CFG_RPMB_TESTKEY=y
+optee-os-flags += CFG_RPMB_FS_DEV_ID=1
+optee-os-flags += CFG_RPMB_TESTKEY=y
+optee-os-flags += CFG_RPMB_RESET_FAT=y
 #optee-os-flags += CFG_ENC_FS=n
 #optee-os-flags += CFG_RPMB_FS_DEBUG_DATA=y
 optee-os-flags += CFG_CONSOLE_UART=0
