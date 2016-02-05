@@ -10,7 +10,7 @@
 	url = https://github.com/96boards/l-loader.git
 [submodule "linux"]
 	path = linux
-	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+	url = https://github.com/96boards/linux
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
