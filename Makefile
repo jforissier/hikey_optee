@@ -214,7 +214,7 @@ downloads/$(BUSYBOX_TARBALL):
 
 cleaner-busybox:
 	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf (BUSYBOX_DIR) busybox .busybox
+	$(Q)rm -rf $(BUSYBOX_DIR) busybox .busybox
 
 distclean-busybox:
 	$(ECHO) '  DISTCL  $@'
