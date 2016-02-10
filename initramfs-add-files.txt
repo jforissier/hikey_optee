@@ -60,3 +60,6 @@ file /lib/optee_armtz/614789f2-39c0-4ebf-b23592b32ac107ed.ta ${TOP}/sha-perf/out
 
 # strace tool
 ${IFSTRACE}file /bin/strace ${TOP}/strace/strace 755 0 0
+
+# 'mmc' command (eMMC status/configuration)
+${IFMMCUTILS}file /bin/mmc ${TOP}/mmc-utils/mmc 755 0 0

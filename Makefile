@@ -22,6 +22,8 @@ SU ?= 32
 
 # Uncomment to enable
 #WITH_STRACE ?= 1
+# mmc (mmc-utils)
+#WITH_MMC-UTILS ?= 1
 
 .PHONY: FORCE
 
@@ -361,7 +363,8 @@ build-lloader $(LLOADER)::
 	$(ECHO) '  BUILD   build-lloader'
 	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) CROSS_COMPILE="$(CROSS_COMPILE32)" l-loader.bin
 
-build-ptable $(PTABLE):
+build-ptable: $(PTABLE)
+$(PTABLE):
 	$(ECHO) '  BUILD   build-ptable'
 	$(Q)$(MAKE) -C l-loader PTABLE_LST=linux-4g ptable.img
 
@@ -477,6 +480,11 @@ ifneq ($(filter all build-strace,$(MAKECMDGOALS)),)
 initramfs-deps += build-strace
 endif
 endif
+ifeq ($(WITH_MMC-UTILS),1)
+ifneq ($(filter all build-mmc-utils,$(MAKECMDGOALS)),)
+initramfs-deps += build-mmc-utils
+endif
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -487,7 +495,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -615,6 +623,8 @@ clean-optee-linuxdriver:
 #
 
 optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
+#optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4
+#optee-client-flags += RPMB_EMU=
 
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
@@ -635,6 +645,12 @@ optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 optee-os-flags += CFG_CONSOLE_UART=0
+# See also RPMB_EMU= in optee-client-flags
+#optee-os-flags += CFG_RPMB_FS=y
+# Uncomment to use an eMMC module in the microSD slot instead of embedded eMMC
+#optee-os-flags += CFG_RPMB_FS_DEV_ID=1
+#optee-os-flags += CFG_RPMB_TESTKEY=y
+#optee-os-flags += CFG_RPMB_RESET_FAT=y
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
@@ -824,7 +840,7 @@ strace/configure: strace/bootstrap
 .PHONY: clean-strace
 clean-strace:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)export $(STRACE_EXPORTS) ; $(MAKE) -C strace clean
+	$(Q)export $(STRACE_EXPORTS) ; [ -d strace ] && $(MAKE) -C strace clean || :
 	$(Q)rm -f .strace_exports .strace_exports.new
 
 .PHONY: cleaner-strace
@@ -840,3 +856,26 @@ IFSTRACE=\#
 
 endif
 
+#
+# mmc-utils
+#
+
+MMC-UTILS_FLAGS := CC='$(CROSS_COMPILE_HOST)gcc'
+
+ifeq ($(WITH_MMC-UTILS),1)
+
+build-mmc-utils:
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C mmc-utils $(MMC-UTILS_FLAGS)
+
+clean-mmc-utils:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C mmc-utils clean
+
+clean: clean-mmc-utils
+
+else
+
+IFMMCUTILS=\#
+
+endif

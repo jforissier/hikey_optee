@@ -41,3 +41,7 @@
 [submodule "strace"]
 	path = strace
 	url = git://git.code.sf.net/p/strace/code
+[submodule "mmc-utils"]
+	path = mmc-utils
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/cjb/mmc-utils.git
+
