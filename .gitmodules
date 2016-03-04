@@ -4,11 +4,12 @@
 	branch = hikey
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
-	url = https://github.com/96boards/arm-trusted-firmware.git
-	branch = hikey
+	url = https://github.com/jforissier/arm-trusted-firmware.git
+	branch = dt
 [submodule "l-loader"]
 	path = l-loader
 	url = https://github.com/96boards/l-loader.git
+	branch = master
 [submodule "linux"]
 	path = linux
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git

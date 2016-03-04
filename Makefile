@@ -282,17 +282,18 @@ BL31 = $(ATF)/bl31.bin
 # Comment out to not include OP-TEE OS image in fip.bin
 BL32 = optee_os/out/arm-plat-hikey/core/tee.bin
 FIP = $(ATF)/fip.bin
+DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 
 ARMTF_FLAGS := PLAT=hikey DEBUG=$(ATF_DEBUG)
 # TF console now defaults to UART3 (on the low-speed header connector).
 # The following line selects UART0 (the unpopulated pads next to J15),
 # which is also used by the boot ROM.
 ARMTF_FLAGS += CONSOLE_BASE=PL011_UART0_BASE CRASH_CONSOLE_BASE=PL011_UART0_BASE
-#ARMTF_FLAGS += LOG_LEVEL=40
+ARMTF_FLAGS += LOG_LEVEL=30 # 10=notice 20=error 30=warning 40=info 50=verbose
 ARMTF_EXPORTS := BL30=$(PWD)/$(BL30) BL33=$(PWD)/$(BL33) #CFLAGS=""
 ifneq (,$(BL32))
 ARMTF_FLAGS += SPD=opteed
-ARMTF_EXPORTS += BL32=$(PWD)/$(BL32)
+ARMTF_EXPORTS += BL32=$(PWD)/$(BL32) DTB=$(PWD)/$(DTB) FIP_ARGS="--pad 4"
 endif
 
 define arm-tf-make
@@ -328,7 +329,7 @@ tf-deps += build-bl33
 endif
 
 .PHONY: build-fip
-build-fip:: $(tf-deps)
+build-fip:: build-dtb $(tf-deps)
 build-fip $(FIP)::
 	$(call arm-tf-make, fip)
 
@@ -380,7 +381,6 @@ clean-lloader-ptable:
 # each time it is run
 
 LINUX = linux/arch/arm64/boot/Image
-DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 # Config fragments to merge with the default kernel configuration
 KCONFIGS += kernel_config/dmabuf.conf
 KCONFIGS += kernel_config/usb_net_dm9601.conf
@@ -641,7 +641,7 @@ clean-optee-client:
 
 optee-os-flags := CROSS_COMPILE="$(CROSS_COMPILE32)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
-optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
+optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=3 # 0=none 1=err 2=info 3=debug 4=flow
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 optee-os-flags += CFG_CONSOLE_UART=0
@@ -651,6 +651,7 @@ optee-os-flags += CFG_CONSOLE_UART=0
 #optee-os-flags += CFG_RPMB_FS_DEV_ID=1
 #optee-os-flags += CFG_RPMB_TESTKEY=y
 #optee-os-flags += CFG_RPMB_RESET_FAT=y
+optee-os-flags += CFG_DT=y
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
