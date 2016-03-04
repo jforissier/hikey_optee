@@ -4,45 +4,56 @@
 	branch = hikey
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
-	url = https://github.com/96boards/arm-trusted-firmware.git
-	branch = hikey
+	url = https://github.com/linaro-swg/arm-trusted-firmware.git
+	branch = hikey_gendrv
 [submodule "l-loader"]
 	path = l-loader
 	url = https://github.com/96boards/l-loader.git
+	branch = master
 [submodule "linux"]
 	path = linux
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
+	branch = master
 [submodule "gen_rootfs"]
 	path = gen_rootfs
 	url = https://github.com/linaro-swg/gen_rootfs.git
 [submodule "optee_linuxdriver"]
 	path = optee_linuxdriver
 	url = https://github.com/OP-TEE/optee_linuxdriver.git
+	branch = master
 [submodule "optee_client"]
 	path = optee_client
 	url = https://github.com/OP-TEE/optee_client.git
+	branch = master
 [submodule "optee_test"]
 	path = optee_test
 	url = https://github.com/OP-TEE/optee_test.git
+	branch = master
 [submodule "optee_os"]
 	path = optee_os
 	url = https://github.com/OP-TEE/optee_os.git
+	branch = master
 [submodule "aes-perf"]
 	path = aes-perf
 	url = https://github.com/linaro-swg/aes-perf.git
+	branch = master
 [submodule "sha-perf"]
 	path = sha-perf
 	url = https://github.com/linaro-swg/sha-perf.git
+	branch = master
 [submodule "grub"]
 	path = grub
 	url = git://git.savannah.gnu.org/grub.git
+	branch = master
 [submodule "strace"]
 	path = strace
 	url = git://git.code.sf.net/p/strace/code
+	branch = master
 [submodule "mmc-utils"]
 	path = mmc-utils
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/cjb/mmc-utils.git
+	branch = master
 
