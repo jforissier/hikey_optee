@@ -1,0 +1,18 @@
+/*
+ * Note: the DT file in the linaro-swg optee kernel [1] does have the optee
+ * node, so we could as well use it as-is and drop this file. Keep it for now
+ * since it doesn't hurt and may help tweak some stuff.
+ *
+ * [1] https://github.com/linaro-swg/linux/tree/optee
+ */
+#include "linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts"
+
+/ {
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+
