@@ -1,0 +1,11 @@
+#include "linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts"
+
+/ {
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+

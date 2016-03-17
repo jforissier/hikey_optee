@@ -12,7 +12,8 @@
 	branch = master
 [submodule "linux"]
 	path = linux
-	url = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+	url = https://github.com/linaro-swg/linux.git
+	branch = optee
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
@@ -20,22 +21,18 @@
 [submodule "gen_rootfs"]
 	path = gen_rootfs
 	url = https://github.com/linaro-swg/gen_rootfs.git
-[submodule "optee_linuxdriver"]
-	path = optee_linuxdriver
-	url = https://github.com/OP-TEE/optee_linuxdriver.git
-	branch = master
 [submodule "optee_client"]
 	path = optee_client
-	url = https://github.com/OP-TEE/optee_client.git
-	branch = master
+	url = https://github.com/jenswi-linaro/optee_client.git
+	branch = switch_to_gdrv
 [submodule "optee_test"]
 	path = optee_test
-	url = https://github.com/OP-TEE/optee_test.git
-	branch = master
+	url = https://github.com/jenswi-linaro/optee_test.git
+	branch = switch_to_gdrv
 [submodule "optee_os"]
 	path = optee_os
-	url = https://github.com/OP-TEE/optee_os.git
-	branch = master
+	url = https://github.com/jforissier/optee_os.git
+	branch = gendrv
 [submodule "aes-perf"]
 	path = aes-perf
 	url = https://github.com/linaro-swg/aes-perf.git
