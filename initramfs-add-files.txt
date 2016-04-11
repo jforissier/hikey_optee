@@ -57,3 +57,8 @@ ${IFSTRACE}file /bin/strace ${TOP}/strace/strace 755 0 0
 
 # 'mmc' command (eMMC status/configuration)
 ${IFMMCUTILS}file /bin/mmc ${TOP}/mmc-utils/mmc 755 0 0
+
+# libsqlfs.so library and sqlite3 shell
+${IFSQLFS}file /bin/sqlite ${TOP}/sqlfs/3rdparty/sqlite3/sqlite 755 0 0
+${IFSQLFS}file /lib/${MULTIARCH}/libsqlfs.so ${TOP}/sqlfs/3rdparty/libsqlfs.so 755 0 0
+

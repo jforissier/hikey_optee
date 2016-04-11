@@ -24,6 +24,8 @@ SU ?= 32
 #WITH_STRACE ?= 1
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
+# libsqlfs and sqlite
+WITH_SQLFS ?= 1
 
 .PHONY: FORCE
 
@@ -492,6 +494,11 @@ ifneq ($(filter all build-mmc-utils,$(MAKECMDGOALS)),)
 initramfs-deps += build-mmc-utils
 endif
 endif
+ifeq ($(WITH_SQLFS),1)
+ifneq ($(filter all build-sqlfs,$(MAKECMDGOALS)),)
+initramfs-deps += build-sqlfs
+endif
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -502,7 +509,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' IFSQLFS='$(IFSQLFS)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -855,3 +862,27 @@ else
 IFMMCUTILS=\#
 
 endif
+
+#
+# libsqlfs / sqlite
+#
+
+ifeq ($(WITH_SQLFS),1)
+
+build-sqlfs:
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C sqlfs CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
+
+.PHONY: clean-sqlfs
+clean-sqlfs:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C sqlfs clean
+
+clean: clean-sqlfs
+
+else
+
+IFSQLFS=\#
+
+endif
+

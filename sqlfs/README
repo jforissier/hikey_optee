@@ -1,0 +1,10 @@
+- The sqlfs* files in this directory are imported from
+https://github.com/guardianproject/libsqlfs commit def854a
+("fuse_sqlfs: support giving a password via stdin").
+This code is licensed under LGPLv2, see COPYING.
+
+- The sqlite3/ directory contains SQLite3 source code in the form of the
+so-called "amalgamation" file (sqlite3.c) and its associated headers
+(sqlite3.h, sqlite3_ext.h), plus the source for the 'sqlite' command
+(shell.c). This is public domain code.
+
