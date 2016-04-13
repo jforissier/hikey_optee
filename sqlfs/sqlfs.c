@@ -2000,8 +2000,8 @@ int sqlfs_proc_readdir(sqlfs_t *sqlfs, const char *path, void *buf, fuse_fill_di
 
     lpath = strdup(path);
     remove_tail_slash(lpath);
-    filler(buf, ".", NULL, 0);
-    filler(buf, "..", NULL, 0);
+    filler(buf, ".", NULL, 0, 0);
+    filler(buf, "..", NULL, 0, 0);
     snprintf(tmp, sizeof(tmp), "%s/*", lpath);
 
     SQLITE3_PREPARE(get_sqlfs(sqlfs)->db, cmd, -1, &stmt,  &tail);
@@ -2029,7 +2029,7 @@ int sqlfs_proc_readdir(sqlfs_t *sqlfs, const char *path, void *buf, fuse_fill_di
                 if (*t2 == 0) /* special case when dir the root directory */
                     continue;
 
-                if (filler(buf, t2, NULL, 0))
+                if (filler(buf, t2, NULL, 0, 0))
                     break;
             }
             else if (r == SQLITE_DONE)
@@ -2537,7 +2537,8 @@ int sqlfs_proc_truncate(sqlfs_t *sqlfs, const char *path, off_t size)
     return result;
 }
 
-int sqlfs_proc_utime(sqlfs_t *sqlfs, const char *path, struct utimbuf *buf)
+int sqlfs_proc_utimens(sqlfs_t *sqlfs, const char *path,
+		       const struct timespec tv[2])
 {
     int r, result = 0;
     time_t now;
@@ -2554,17 +2555,8 @@ int sqlfs_proc_utime(sqlfs_t *sqlfs, const char *path, struct utimbuf *buf)
             return -EBUSY;
         return -ENOENT;
     }
-    if (!buf)
-    {
-        time(&now);
-        attr.atime = now;
-        attr.mtime = now;
-    }
-    else
-    {
-        attr.atime = buf->actime;
-        attr.mtime = buf->modtime;
-    }
+    attr.atime = tv[0].tv_sec;
+    attr.mtime = tv[1].tv_sec;
 
     r = set_attr(get_sqlfs(sqlfs), path, &attr);
     if (r != SQLITE_OK)
@@ -3178,7 +3170,7 @@ int sqlfs_list_keys(sqlfs_t *sqlfs, const char *pattern, void *buf, fuse_fill_di
             if (r == SQLITE_ROW)
             {
                 t = (const char *)sqlite3_column_text(stmt, 0);
-                if (filler(buf, t, NULL, 0))
+                if (filler(buf, t, NULL, 0, 0))
                     break;
             }
             else if (r == SQLITE_DONE)
@@ -3480,7 +3472,8 @@ static int sqlfs_op_readlink(const char *path, char *buf, size_t size)
     return sqlfs_proc_readlink(0, path, buf, size);
 }
 static int sqlfs_op_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
-                            off_t offset, struct fuse_file_info *fi)
+                            off_t offset, struct fuse_file_info *fi,
+			    enum fuse_readdir_flags flags)
 {
     return sqlfs_proc_readdir(0, path, buf, filler, offset, fi);
 }
@@ -3504,7 +3497,8 @@ static int sqlfs_op_symlink(const char *path, const char *to)
 {
     return sqlfs_proc_symlink(0, path, to);
 }
-static int sqlfs_op_rename(const char *from, const char *to)
+static int sqlfs_op_rename(const char *from, const char *to,
+			   unsigned int flags)
 {
     return sqlfs_proc_rename(0, from, to);
 }
@@ -3524,9 +3518,9 @@ static int sqlfs_op_truncate(const char *path, off_t size)
 {
     return sqlfs_proc_truncate(0, path, size);
 }
-static int sqlfs_op_utime(const char *path, struct utimbuf *buf)
+static int sqlfs_op_utimens(const char *path, const struct timespec tv[2])
 {
-    return sqlfs_proc_utime(0, path, buf);
+    return sqlfs_proc_utimens(0, path, tv);
 }
 int sqlfs_op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
@@ -3600,7 +3594,7 @@ int sqlfs_init(const char *db_file_name)
     sqlfs_op.chmod      = sqlfs_op_chmod;
     sqlfs_op.chown      = sqlfs_op_chown;
     sqlfs_op.truncate   = sqlfs_op_truncate;
-    sqlfs_op.utime      = sqlfs_op_utime;
+    sqlfs_op.utimens    = sqlfs_op_utimens;
     sqlfs_op.open       = sqlfs_op_open;
     sqlfs_op.create     = sqlfs_op_create;
     sqlfs_op.read       = sqlfs_op_read;
@@ -3670,7 +3664,7 @@ int sqlfs_instance_count()
 
 int sqlfs_fuse_main(int argc, char **argv)
 {
-    int ret = fuse_main(argc, argv, &sqlfs_op);
+    int ret = fuse_main(argc, argv, &sqlfs_op, NULL);
     /* zero out password in memory */
     memset(cached_password, 0, MAX_PASSWORD_LENGTH);
     return ret;

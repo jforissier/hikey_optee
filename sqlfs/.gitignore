@@ -1,0 +1,9 @@
+/3rdparty/sqlite3/libsqlite3.a
+/3rdparty/sqlite3/sqlite
+/3rdparty/sqlite3/sqlite3.o
+/libsqlfs.so
+/sqlfscat
+/sqlfsls
+/sqlfstest
+/fuse_sqlfs
+/test.db

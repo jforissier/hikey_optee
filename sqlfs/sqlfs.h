@@ -80,6 +80,10 @@ extern "C" {
     };
 
 
+    enum fuse_fill_dir_flags {
+        FUSE_FILL_DIR_PLUS = (1 << 1),
+    };
+
     /** Function to add an entry in a readdir() operation
      *
      * @param buf the buffer passed to the readdir() operation
@@ -89,7 +93,8 @@ extern "C" {
      * @return 1 if buffer is full, zero otherwise
      */
     typedef int (*fuse_fill_dir_t) (void *buf, const char *name,
-                                    const struct stat *stbuf, off_t off);
+                                    const struct stat *stbuf, off_t off,
+                                    enum fuse_fill_dir_flags flags);
 
 #endif /* HAVE_LIBFUSE */
 #include "sqlfs_internal.h"

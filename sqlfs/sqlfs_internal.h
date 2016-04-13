@@ -139,7 +139,7 @@ int sqlfs_proc_link(sqlfs_t *, const char *from, const char *to);
 int sqlfs_proc_chmod(sqlfs_t *, const char *path, mode_t mode);
 int sqlfs_proc_chown(sqlfs_t *, const char *path, uid_t uid, gid_t gid);
 int sqlfs_proc_truncate(sqlfs_t *, const char *path, off_t size);
-int sqlfs_proc_utime(sqlfs_t *, const char *path, struct utimbuf *buf);
+int sqlfs_proc_utime(sqlfs_t *, const char *path, const struct timespec tv[2]);
 int sqlfs_proc_open(sqlfs_t *, const char *path, struct fuse_file_info *fi);
 int sqlfs_proc_read(sqlfs_t *, const char *path, char *buf, size_t size, off_t offset, struct
                     fuse_file_info *fi);

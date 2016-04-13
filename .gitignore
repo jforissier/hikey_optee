@@ -4,10 +4,10 @@
 /.linuxbuildinprogress
 /.strace_exports
 /.initramfs_exports
+/.libfuse_exports
 /nvme.img
 /boot.img
 /initramfs.cpio.gz
-/out
-/public
+/inst
 /grubaa64.efi
 /hi6220-hikey.dtb

@@ -21,7 +21,7 @@ SK ?= 64
 SU ?= 32
 
 # Uncomment to enable
-#WITH_STRACE ?= 1
+WITH_STRACE ?= 1
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
 # libsqlfs and sqlite
@@ -509,7 +509,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' IFSQLFS='$(IFSQLFS)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' IFSQLFS='$(IFSQLFS)' IFLIBFUSE='$(IFLIBFUSE)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -866,12 +866,21 @@ endif
 #
 # libsqlfs / sqlite
 #
+# fuse_sqlfs <mount point>
+#    Mount SQLFS database file /tmp/fsdata as <mount point>
+
+ifneq ($(filter all build-libfuse,$(MAKECMDGOALS)),)
+sqlfs-deps += build-libfuse
+endif
 
 ifeq ($(WITH_SQLFS),1)
 
-build-sqlfs:
+WITH_LIBFUSE := 1
+
+.PHONY: build-sqlfs
+build-sqlfs:: $(sqlfs-deps)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C sqlfs CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
+	$(Q)$(MAKE) -C sqlfs CROSS_COMPILE="$(CROSS_COMPILE_HOST)" LIBFUSE_PATH=$(PWD)/inst/libfuse
 
 .PHONY: clean-sqlfs
 clean-sqlfs:
@@ -886,3 +895,44 @@ IFSQLFS=\#
 
 endif
 
+ifeq ($(WITH_LIBFUSE),1)
+
+LIBFUSE_EXPORTS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+build-libfuse: libfuse/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C libfuse install DESTDIR=$(PWD)/inst/libfuse
+
+.libfuse_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo $(LIBFUSE_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+libfuse/Makefile: libfuse/configure .libfuse_exports
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(LIBFUSE_EXPORTS) ; \
+	    cd libfuse ; ./configure --host=$(MULTIARCH) --prefix=/
+
+libfuse/configure: libfuse/makeconf.sh
+	$(ECHO) ' GEN      $@'
+	$(Q)cd libfuse ; ./makeconf.sh
+
+.PHONY: clean-libfuse
+clean-libfuse:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(LIBFUSE_EXPORTS) ; [ -e libfuse/Makefile ] && $(MAKE) -C libfuse clean || :
+	$(Q)rm -f .libfuse_exports .libfuse_exports.new
+
+.PHONY: cleaner-libfuse
+cleaner-libfuse:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f libfuse/Makefile libfuse/configure
+	$(Q)rm -rf inst/libfuse
+
+cleaner: cleaner-libfuse
+
+else
+
+IFLIBFUSE=\#
+
+endif

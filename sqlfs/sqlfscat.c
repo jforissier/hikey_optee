@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "stat on %s failed!\n", db);
         exit(1);
     }
-    if (S_ISREG(s.st_mode))
+    if (!S_ISREG(s.st_mode))
     {
         fprintf(stderr, "Not a regular file: %s\n", db);
         exit(1);
@@ -64,12 +64,11 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Failed to open: %s\n", db);
             return 1;
         }
-        sqlfs_init(db);
     }
 
-    if (!sqlfs_proc_access(sqlfs, file, R_OK)) {
+    if (sqlfs_proc_access(sqlfs, file, R_OK)) {
         fprintf(stderr, "Cannot access %s in %s\n", file, db);
-        //return 1;
+        return 1;
     }
 
 /* now read the file from sqlfs */

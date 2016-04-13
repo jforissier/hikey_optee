@@ -54,3 +54,7 @@
 	url = https://git.kernel.org/pub/scm/linux/kernel/git/cjb/mmc-utils.git
 	branch = master
 
+[submodule "libfuse"]
+	path = libfuse
+	url = https://github.com/libfuse/libfuse
+	branch = master

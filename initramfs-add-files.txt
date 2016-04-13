@@ -62,4 +62,17 @@ ${IFMMCUTILS}file /bin/mmc ${TOP}/mmc-utils/mmc 755 0 0
 # libsqlfs.so library and sqlite3 shell
 ${IFSQLFS}file /bin/sqlite ${TOP}/sqlfs/3rdparty/sqlite3/sqlite 755 0 0
 ${IFSQLFS}file /lib/${MULTIARCH}/libsqlfs.so ${TOP}/sqlfs/libsqlfs.so 755 0 0
+# SQLFS debug tools
+${IFSQLFS}file /bin/sqlfsls ${TOP}/sqlfs/sqlfsls 755 0 0
+${IFSQLFS}file /bin/sqlfscat ${TOP}/sqlfs/sqlfscat 755 0 0
+${IFSQLFS}file /bin/fuse_sqlfs ${TOP}/sqlfs/fuse_sqlfs 755 0 0
+
+# libfuse is used by fuse_sqlfs (and libsqlfs.so unless fuse_sqlfs is not built
+# and libfuse is configured without libfuse support)
+${IFLIBFUSE}file /lib/${MULTIARCH}/libfuse3.so.0.0.0 ${TOP}/inst/libfuse/lib/libfuse3.so.0.0.0 755 0 0
+${IFLIBFUSE}slink /lib/${MULTIARCH}/libfuse3.so.0 libfuse3.so.0.0.0 755 0 0
+${IFLIBFUSE}slink /lib/${MULTIARCH}/libfuse3.so libfuse3.so.0.0.0 755 0 0
+${IFLIBFUSE}file /bin/fusermount ${TOP}/inst/libfuse/bin/fusermount 4755 0 0
+${IFLIBFUSE}file /etc/init.d/fuse ${TOP}/inst/libfuse/etc/init.d/fuse 755 0 0
+${IFLIBFUSE}file /sbin/mount.fuse ${TOP}/inst/libfuse/sbin/mount.fuse 4755 0 0
 
