@@ -36,7 +36,7 @@ fuse_sqlfs: fuse_sqlfs.c libsqlfs.so
 	$(CC) $(CFLAGS) -o $@ fuse_sqlfs.c $(LDFLAGS_LIBSQLFS) -lpthread -ldl
 
 sqlfsls: sqlfsls.cpp libsqlfs.so
-	$(CXX) $(CFLAGS) -o $@ sqlfsls.cpp $(LDFLAGS_LIBSQLFS) -lpthread -ldl
+	$(CXX) $(CFLAGS) -o $@ sqlfsls.cpp -static-libstdc++ -static-libgcc $(LDFLAGS_LIBSQLFS) -lpthread -ldl
 
 sqlfscat: sqlfscat.c libsqlfs.so
 	$(CC) $(CFLAGS) -o $@ sqlfscat.c $(LDFLAGS_LIBSQLFS) -lpthread -ldl
