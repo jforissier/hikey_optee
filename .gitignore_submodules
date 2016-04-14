@@ -5,8 +5,8 @@
 # Half-good solution: register this file using the following command
 # in each submodule that has Qt files:
 #   git config --local core.excludesfile "../.gitignore_submodules"
-/*.files
-/*.includes
-/*.creator
-/*.creator.user
-/*.config
+*.files
+*.includes
+*.creator
+*.creator.user
+*.config
