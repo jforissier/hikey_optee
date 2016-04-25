@@ -67,7 +67,6 @@ help:
 	@if [ $(WITH_STRACE) ]; then \
 		echo "          [STRACE = $(STRACE)]"; \
 	 fi
-	@echo "          [OPTEE-LINUXDRIVER = $(optee-linuxdriver-files)]"
 	@echo "          [OPTEE-CLIENT = optee_client/out/libteec.so*" \
 	                 "optee_client/out/tee-supplicant/tee-supplicant]"
 	@echo "          [OPTEE-TEST = optee_test/out/xtest/xtest" \
