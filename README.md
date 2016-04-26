@@ -69,7 +69,7 @@ sudo cp 51-hikey.rules to /etc/udev/rules.d/
 git submodule init
 
 # Fetch submodules (will take time)
-git submodule update
+git submodule update --recursive
 
 # Fetch the cross-compilers (~ 90MB) and build
 # Note: generation of boot.img uses 'sudo' so if the build

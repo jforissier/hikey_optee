@@ -24,6 +24,7 @@ SU ?= 32
 #WITH_STRACE ?= 1
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
+#WITH_VALGRIND = 1
 
 .PHONY: FORCE
 
@@ -149,10 +150,12 @@ ifeq ($(NSU),64)
 CROSS_COMPILE_HOST := $(CROSS_COMPILE)
 host-gcc := $(aarch64-linux-gnu-gcc)
 MULTIARCH := aarch64-linux-gnu
+VALGRIND_ARCH := arm64
 else
 CROSS_COMPILE_HOST := $(CROSS_COMPILE32)
 host-gcc := $(arm-linux-gnueabihf-gcc)
 MULTIARCH := arm-linux-gnueabihf
+VALGRIND_ARCH := arm
 endif
 
 ifeq ($(SU),64)
@@ -491,6 +494,11 @@ ifneq ($(filter all build-mmc-utils,$(MAKECMDGOALS)),)
 initramfs-deps += build-mmc-utils
 endif
 endif
+ifeq ($(WITH_VALGRIND),1)
+ifneq ($(filter all build-valgrind,$(MAKECMDGOALS)),)
+initramfs-deps += build-valgrind
+endif
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -501,7 +509,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -854,3 +862,47 @@ else
 IFMMCUTILS=\#
 
 endif
+
+ifeq ($(WITH_VALGRIND),1)
+
+VALGRIND = valgrind/valgrind
+VALGRIND_EXPORTS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld' AR='$(CROSS_COMPILE_HOST)ar'
+
+build-valgrind $(VALGRIND): valgrind/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C valgrind install DESTDIR=$(PWD)/inst/valgrind
+
+.valgrind_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo $(VALGRIND_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+valgrind/Makefile: valgrind/configure .valgrind_exports
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(VALGRIND_EXPORTS) ; \
+	    cd valgrind ; ./configure --host=$(MULTIARCH) --prefix=/usr
+
+# FIXME: valgrind/VEX must be 
+valgrind/configure: valgrind/autogen.sh
+	$(ECHO) ' GEN      $@'
+	$(Q)cd valgrind ; ./autogen.sh
+
+.PHONY: clean-valgrind
+clean-valgrind:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(VALGRIND_EXPORTS) ; [ -d valgrind ] && $(MAKE) -C valgrind clean || :
+	$(Q)rm -f .valgrind_exports .valgrind_exports.new
+
+.PHONY: cleaner-valgrind
+cleaner-valgrind:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f valgrind/Makefile valgrind/configure
+
+cleaner: cleaner-valgrind
+
+else
+
+IFVALGRIND=\#
+
+endif
+

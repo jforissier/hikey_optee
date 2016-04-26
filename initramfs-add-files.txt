@@ -58,3 +58,43 @@ ${IFSTRACE}file /bin/strace ${TOP}/strace/strace 755 0 0
 
 # 'mmc' command (eMMC status/configuration)
 ${IFMMCUTILS}file /bin/mmc ${TOP}/mmc-utils/mmc 755 0 0
+
+# Valgrind
+${IFVALGRIND}dir /usr/lib 755 0 0
+${IFVALGRIND}dir /usr/lib/valgrind 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-core-valgrind-s1.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-core-valgrind-s1.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-core-valgrind-s2.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-core-valgrind-s2.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-core.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-core.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-vfpv3-valgrind-s1.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-vfpv3-valgrind-s1.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-vfpv3-valgrind-s2.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-vfpv3-valgrind-s2.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-vfpv3.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-vfpv3.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-with-vfpv3-valgrind.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-with-vfpv3-valgrind.xml 644 0 0
+${IFVALGRIND}file /usr/lib/valgrind/arm-with-vfpv3.xml ${TOP}/inst/valgrind/usr/lib/valgrind/arm-with-vfpv3.xml 644 0 0
+
+${IFVALGRIND}file /usr/lib/valgrind/cachegrind-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/cachegrind-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/callgrind-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/callgrind-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/drd-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/drd-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/exp-bbv-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/exp-bbv-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/exp-dhat-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/exp-dhat-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/exp-sgcheck-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/exp-sgcheck-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/getoff-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/getoff-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/helgrind-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/helgrind-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/lackey-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/lackey-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/libcoregrind-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libcoregrind-${VALGRIND_ARCH}-linux.a 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/libreplacemalloc_toolpreload-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libreplacemalloc_toolpreload-${VALGRIND_ARCH}-linux.a 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/libvex-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libvex-${VALGRIND_ARCH}-linux.a 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/libvexmultiarch-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libvexmultiarch-${VALGRIND_ARCH}-linux.a 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/massif-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/massif-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/memcheck-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/memcheck-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/none-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/none-${VALGRIND_ARCH}-linux 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_core-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_core-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_drd-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_drd-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_exp-dhat-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_exp-dhat-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_exp-sgcheck-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_exp-sgcheck-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_helgrind-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_helgrind-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_massif-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_massif-${VALGRIND_ARCH}-linux.so 755 0 0
+${IFVALGRIND}file /usr/lib/valgrind/vgpreload_memcheck-${VALGRIND_ARCH}-linux.so ${TOP}/inst/valgrind/usr/lib/valgrind/vgpreload_memcheck-${VALGRIND_ARCH}-linux.so 755 0 0
+
+${IFVALGRIND}file /usr/lib/valgrind/default.supp  ${TOP}/inst/valgrind/usr/lib/valgrind/default.supp 644 0 0
+
+${IFVALGRIND}file /usr/bin/valgrind ${TOP}/inst/valgrind/usr/bin/valgrind 755 0 0

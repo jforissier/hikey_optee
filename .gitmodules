@@ -56,4 +56,5 @@
 
 [submodule "valgrind"]
 	path = valgrind
-	url = https://github.com/svn2github/valgrind-trunk
+	url = https://github.com/jforissier/valgrind-trunk
+	branch = with-vex
