@@ -696,6 +696,9 @@ ifeq ($(GP_TESTS),1)
 optee-test-flags += CFG_GP_PACKAGE_PATH=$(PWD)/optee_test/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07
 optee-test-flags += COMPILE_NS_USER=$(NSU)
 endif
+# optee_test/Makefile does "CFLAGS += ..." so the below will work, but
+# "make CFLAGS=..." wouldn't
+#optee-test-exports := CFLAGS="-ggdb"
 
 ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
 optee-test-deps += build-bl32
@@ -712,7 +715,7 @@ endif
 build-optee-test:: $(optee-test-deps)
 build-optee-test:: $(ta-gcc)
 	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C optee_test $(optee-test-flags)
+	$(Q)[ "$(optee-test-exports)" ] && export $(optee-test-exports); $(MAKE) -C optee_test $(optee-test-flags)
 
 # FIXME:
 # No "make clean" in optee_test: fails if optee_os has been cleaned
