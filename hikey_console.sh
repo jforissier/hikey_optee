@@ -5,8 +5,8 @@
 #
 # Adjust USB device as needed
 
-# --lf: do not send CR+LF, send LF only
+# --eol LF: do not send CR+LF, send LF only
 # This does not work in UEFI shell. Use 'Ctrl+T Ctrl+L' to switch to
 # CR+LF mode again.
 DEV=${1:-/dev/ttyUSB0}
-miniterm.py --lf ${DEV} 115200
+miniterm.py --eol LF ${DEV} 115200
