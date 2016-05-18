@@ -24,8 +24,8 @@ SU ?= 32
 WITH_STRACE ?= 1
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
-# libsqlfs and sqlite
-WITH_SQLFS ?= 1
+# libsqlfs and sqlite (NOT the ones in tee-supplicant)
+#WITH_SQLFS ?= 1
 
 .PHONY: FORCE
 
@@ -608,8 +608,9 @@ cleaner-nvme:
 #
 
 optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
-#optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4
+#optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4 DEBUG=1
 #optee-client-flags += RPMB_EMU=
+optee-client-flags += WITH_SQLFS=y
 
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
@@ -868,6 +869,10 @@ endif
 #
 # fuse_sqlfs <mount point>
 #    Mount SQLFS database file /tmp/fsdata as <mount point>
+#
+# Example to debug tee-supplicant SQL FS:
+# mkdir -p /mnt/tee ; ln -s /data/tee/sstore.db /tmp/fsdata ; fuse_sqlfs /mnt/tee &
+# ls -l /mnt/tee
 
 ifneq ($(filter all build-libfuse,$(MAKECMDGOALS)),)
 sqlfs-deps += build-libfuse
