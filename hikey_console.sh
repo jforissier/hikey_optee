@@ -9,4 +9,4 @@
 # This does not work in UEFI shell. Use 'Ctrl+T Ctrl+L' to switch to
 # CR+LF mode again.
 DEV=${1:-/dev/ttyUSB0}
-miniterm.py --eol LF ${DEV} 115200
+miniterm.py --raw --eol LF ${DEV} 115200
