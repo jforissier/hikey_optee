@@ -531,7 +531,9 @@ gen_rootfs/filelist-final.txt: .busybox $(host-gcc)
 
 clean-initramfs:
 	$(ECHO) "  CLEAN  $@"
-	$(Q)cd gen_rootfs ; ./generate-cpio-rootfs.sh hikey clean
+	$(Q)cd gen_rootfs ; \
+	    export CROSS_COMPILE="$(CROSS_COMPILE_HOST)" ; \
+	    ./generate-cpio-rootfs.sh hikey clean
 	$(Q)rm -f $(INITRAMFS) gen_rootfs/filelist-all.txt gen_rootfs/filelist-final.txt
 	$(Q)rm -f .initramfs_exports .initramfs_exports.new
 
