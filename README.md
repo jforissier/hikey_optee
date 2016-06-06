@@ -41,6 +41,7 @@ sudo apt-get install \
     curl \
     gdisk \
     python-serial \
+    python-wand \
     uuid-dev \
     flex \
     bison
