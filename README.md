@@ -1,3 +1,11 @@
+**-- Please note**
+
+This repository is outdated. If you want to run OP-TEE with AOSP on HiKey,
+please refer to: https://github.com/linaro-swg/optee_android_manifest
+instead.
+
+**-- End of note**
+
 This repository contains the software required to run AOSP on the HiKey board
 with OP-TEE:
 - ARM Trusted Firmware
