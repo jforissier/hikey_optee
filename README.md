@@ -61,7 +61,6 @@ recovery flash script will properly detect the board:
 
 ```
 sudo cp 51-hikey.rules /etc/udev/rules.d/
-sudo /etc/init.d/udev restart
 ```
 
 ### 2. How to build
