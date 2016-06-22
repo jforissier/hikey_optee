@@ -450,17 +450,11 @@ endif
 build-boot-img:: $(boot-img-deps)
 build-boot-img $(BOOT-IMG)::
 	$(ECHO) '  GEN    $(BOOT-IMG)'
-	$(Q)sudo -p "[sudo] Password:" true
-	$(Q)if [ -d .tmpbootimg ] ; then sudo rm -rf .tmpbootimg ; fi
-	$(Q)mkdir -p .tmpbootimg
-	$(Q)dd if=/dev/zero of=$(BOOT-IMG) bs=512 count=131072 status=none
-	$(Q)sudo mkfs.vfat -n "BOOT IMG" $(BOOT-IMG) >/dev/null
-	$(Q)sudo mount -o loop,rw,sync $(BOOT-IMG) .tmpbootimg
-	$(Q)sudo cp $(LINUX) $(DTB) $(GRUB) .tmpbootimg
-	$(Q)sudo cp $(INITRAMFS) .tmpbootimg/initrd.img
-	$(Q)sudo cp edk2/Build/HiKey/$(EDK2_DEB_REL)_GCC49/AARCH64/AndroidFastbootApp.efi .tmpbootimg/fastboot.efi
-	$(Q)sudo umount .tmpbootimg
-	$(Q)sudo rm -rf .tmpbootimg
+	$(Q)rm -f $(BOOT-IMG)
+	$(Q)mformat -i $(BOOT-IMG) -n 64 -h 255 -T 131072 -v "BOOT IMG" -C ::
+	$(Q)mcopy -i $(BOOT-IMG) $(LINUX) $(DTB) $(GRUB) ::
+	$(Q)mcopy -i $(BOOT-IMG) $(INITRAMFS) ::/initrd.img
+	$(Q)mcopy -i $(BOOT-IMG) edk2/Build/HiKey/$(EDK2_DEB_REL)_GCC49/AARCH64/AndroidFastbootApp.efi ::
 
 clean-boot-img:
 	$(ECHO) '  CLEAN   $@'

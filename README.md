@@ -43,7 +43,8 @@ sudo apt-get install \
     python-serial \
     uuid-dev \
     flex \
-    bison
+    bison \
+    mtools
 ```
 
 If you are running a 64-bit linux distribution, you may also need
@@ -72,9 +73,6 @@ git submodule init
 git submodule update --recursive
 
 # Fetch the cross-compilers (~ 90MB) and build
-# Note: generation of boot.img uses 'sudo' so if the build
-# appears to be hung in the end, it's probably just waiting
-# for your password.
 make -j8
 ```
 
