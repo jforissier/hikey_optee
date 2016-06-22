@@ -95,7 +95,7 @@ help:
 	@echo "Flashing micro-howto:"
 	@echo "  # First time flashing the board (or broken eMMC):"
 	@echo "  # Set J15 pins 1-2 closed 3-4 closed 5-6 open (recovery mode)"
-	@echo "  sudo python burn-boot/hisi-idt.py --img1=$(LLOADER)"
+	@echo "  python burn-boot/hisi-idt.py --img1=$(LLOADER)"
 	@echo "  # Board is now in fastboot mode. Later you may skip the above step"
 	@echo "  # and enter fastboot directly by setting:"
 	@echo "  # J15 pins 1-2 closed 3-4 open 5-6 closed (fastboot mode)"
@@ -782,7 +782,7 @@ endef
 .PHONY: flash
 flash:
 	$(ECHO) '  FLASH   $(LLOADER)'
-	$(Q)sudo python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
+	$(Q)python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
 	$(ECHO) '  FLASH   $(PTABLE)'
 	$(call fastboot-flash,ptable,$(PTABLE))
 	$(ECHO) '  FLASH   $(FIP)'

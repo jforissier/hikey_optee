@@ -56,11 +56,12 @@ sudo apt-get install libc6:i386 libstdc++6:i386 libz1:i386
 "Known good" cross compilers/toolchains are downloaded automatically from
 linaro.org by the Makefile.
 
-Copy the USB device configuration file so that the fastboot command will
-properly detect the board:
+Copy the USB device configuration file so that the fastboot command and the
+recovery flash script will properly detect the board:
 
 ```
-sudo cp 51-hikey.rules to /etc/udev/rules.d/
+sudo cp 51-hikey.rules /etc/udev/rules.d/
+sudo /etc/init.d/udev restart
 ```
 
 ### 2. How to build
