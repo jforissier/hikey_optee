@@ -13,7 +13,7 @@
 [submodule "linux"]
 	path = linux
 	url = https://github.com/linaro-swg/linux.git
-	branch = optee_v9
+	branch = optee
 [submodule "burn-boot"]
 	path = burn-boot
 	url = https://github.com/96boards/burn-boot.git
