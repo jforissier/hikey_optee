@@ -58,3 +58,7 @@
 	path = valgrind
 	url = https://github.com/jforissier/valgrind-trunk
 	branch = with-vex
+[submodule "busybox"]
+	path = busybox
+	url = git://git.busybox.net/busybox
+	branch = 1_23_stable

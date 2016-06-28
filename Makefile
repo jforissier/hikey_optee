@@ -39,9 +39,9 @@ clean: clean-linux clean-boot-img clean-initramfs
 clean: clean-optee-client clean-bl32 clean-aes-perf clean-sha-perf
 clean: clean-grub clean-dtb
 
-cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
+cleaner: clean cleaner-nvme
 
-distclean: cleaner distclean-aarch64-gcc distclean-arm-gcc distclean-busybox distclean-grub
+distclean: cleaner distclean-grub
 
 help:
 	@echo "Makefile for HiKey board UEFI firmware/kernel"
@@ -118,112 +118,24 @@ define expand-env-var
 awk '{while(match($$0,"[$$]{[^}]*}")) {var=substr($$0,RSTART+2,RLENGTH -3);gsub("[$$]{"var"}",ENVIRON[var])}}1'
 endef
 
-BUSYBOX_URL = http://busybox.net/downloads/busybox-1.23.0.tar.bz2
-BUSYBOX_TARBALL = $(call filename,$(BUSYBOX_URL))
-BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
-
-#
-# Aarch64 toolchain
-#
-AARCH64_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux.tar.xz
-AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
-AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
-# If you don't want to download the aarch64 toolchain, comment out
-# the next line and set CROSS_COMPILE to your compiler command
-aarch64-linux-gnu-gcc := toolchains/$(AARCH64_GCC_DIR)
-export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch64-linux-gnu-
-#export CROSS_COMPILE ?= $(CCACHE)aarch64-linux-gnu-
-
-#
-# Aarch32 toolchain
-#
-ARM_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
-ARM_GCC_TARBALL = $(call filename,$(ARM_GCC_URL))
-ARM_GCC_DIR = $(ARM_GCC_TARBALL:.tar.xz=)
-# If you don't want to download the aarch32 toolchain, comment out
-# the next line and set CROSS_COMPILE32 to your compiler command
-arm-linux-gnueabihf-gcc := toolchains/$(ARM_GCC_DIR)
-CROSS_COMPILE32 ?= $(CCACHE)$(PWD)/toolchains/$(ARM_GCC_DIR)/bin/arm-linux-gnueabihf-
-#CROSS_COMPILE32 ?= $(CCACHE)arm-linux-gnueabihf-
+export CROSS_COMPILE ?= $(CCACHE)aarch64-linux-gnu-
+CROSS_COMPILE32 ?= $(CCACHE)arm-linux-gnueabihf-
 
 ifeq ($(NSU),64)
 CROSS_COMPILE_HOST := $(CROSS_COMPILE)
-host-gcc := $(aarch64-linux-gnu-gcc)
 MULTIARCH := aarch64-linux-gnu
 VALGRIND_ARCH := arm64
 else
 CROSS_COMPILE_HOST := $(CROSS_COMPILE32)
-host-gcc := $(arm-linux-gnueabihf-gcc)
 MULTIARCH := arm-linux-gnueabihf
 VALGRIND_ARCH := arm
 endif
 
 ifeq ($(SU),64)
 CROSS_COMPILE_S_USER := $(CROSS_COMPILE)
-ta-gcc := $(aarch64-linux-gnu-gcc)
 else
 CROSS_COMPILE_S_USER := $(CROSS_COMPILE32)
-ta-gcc := $(arm-linux-gnueabihf-gcc)
 endif
-
-#
-# Download rules
-#
-
-downloads/$(AARCH64_GCC_TARBALL):
-	$(ECHO) '  CURL    $@'
-	$(Q)$(CURL) $(AARCH64_GCC_URL) -o $@
-
-toolchains/$(AARCH64_GCC_DIR): downloads/$(AARCH64_GCC_TARBALL)
-	$(ECHO) '  TAR     $@'
-	$(Q)rm -rf toolchains/$(AARCH64_GCC_DIR)
-	$(Q)cd toolchains && tar xf ../downloads/$(AARCH64_GCC_TARBALL)
-	$(Q)touch $@
-
-cleaner-aarch64-gcc:
-	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf toolchains/$(AARCH64_GCC_DIR)
-
-distclean-aarch64-gcc:
-	$(ECHO) '  DISTCL  $@'
-	$(Q)rm -f downloads/$(AARCH64_GCC_TARBALL)
-
-downloads/$(ARM_GCC_TARBALL):
-	$(ECHO) '  CURL    $@'
-	$(Q)$(CURL) $(ARM_GCC_URL) -o $@
-
-toolchains/$(ARM_GCC_DIR): downloads/$(ARM_GCC_TARBALL)
-	$(ECHO) '  TAR     $@'
-	$(Q)rm -rf toolchains/$(ARM_GCC_DIR)
-	$(Q)cd toolchains && tar xf ../downloads/$(ARM_GCC_TARBALL)
-	$(Q)touch $@
-
-cleaner-arm-gcc:
-	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf toolchains/$(ARM_GCC_DIR)
-
-distclean-arm-gcc:
-	$(ECHO) '  DISTCL  $@'
-	$(Q)rm -f downloads/$(ARM_GCC_TARBALL)
-
-.busybox: downloads/$(BUSYBOX_TARBALL)
-	$(ECHO) '  TAR     busybox'
-	$(Q)rm -rf $(BUSYBOX_DIR) busybox
-	$(Q)tar xf downloads/$(BUSYBOX_TARBALL) && mv $(BUSYBOX_DIR) busybox
-	$(Q)touch $@
-
-downloads/$(BUSYBOX_TARBALL):
-	$(ECHO) '  CURL    $@'
-	$(Q)$(CURL) $(BUSYBOX_URL) -o $@
-
-cleaner-busybox:
-	$(ECHO) '  CLEANER $@'
-	$(Q)rm -rf $(BUSYBOX_DIR) busybox .busybox
-
-distclean-busybox:
-	$(ECHO) '  DISTCL  $@'
-	$(Q)rm -f downloads/$(BUSYBOX_TARBALL)
-
 
 #
 # UEFI
@@ -242,7 +154,7 @@ EDK2_VARS := EDK2_ARCH=AARCH64 EDK2_DSC=HisiPkg/HiKeyPkg/HiKey.dsc EDK2_TOOLCHAI
 EDK2_VARS += EDK2_MACROS="-DSERIAL_BASE=0xF8015000"
 
 .PHONY: build-bl33
-build-bl33:: $(aarch64-linux-gnu-gcc)
+build-bl33::
 build-bl33 $(BL33):: .edk2basetools
 	$(ECHO) '  BUILD   build-bl33'
 	$(Q)set -e ; cd edk2 ; export GCC49_AARCH64_PREFIX='"$(CROSS_COMPILE)"' ; \
@@ -304,15 +216,15 @@ define arm-tf-make
 endef
 
 .PHONY: build-bl1
-build-bl1 $(BL1): $(aarch64-linux-gnu-gcc)
+build-bl1 $(BL1):
 	$(call arm-tf-make, bl1)
 
 .PHONY: build-bl2
-build-bl2 $(BL2): $(aarch64-linux-gnu-gcc)
+build-bl2 $(BL2):
 	$(call arm-tf-make, bl2)
 
 .PHONY: build-bl31
-build-bl31 $(BL31): $(aarch64-linux-gnu-gcc)
+build-bl31 $(BL31):
 	$(call arm-tf-make, bl31)
 
 
@@ -350,17 +262,8 @@ ifneq ($(filter all build-bl1,$(MAKECMDGOALS)),)
 lloader-deps += build-bl1
 endif
 
-# FIXME: adding $(BL1) as a dependency [after $(LLOADER)::] breaks
-# parallel build (-j) because the same rule is run twice simultaneously
-# $ make -j9 build-bl1 build-lloader
-#   BUILD   build-bl1 # $@ = build-bl1
-#   BUILD   build-bl1 # $@ = arm-trusted-firmware/build/.../bl1.bin
-# make[1]: Entering directory '/home/jerome/work/hikey_uefi/arm-trusted-firmware'
-# make[1]: Entering directory '/home/jerome/work/hikey_uefi/arm-trusted-firmware'
-#   DEPS    build/hikey/debug/bl31/bl31.ld.d
-#   DEPS    build/hikey/debug/bl31/bl31.ld.d
 .PHONY: build-lloader
-build-lloader:: $(arm-linux-gnueabihf-gcc) $(lloader-deps)
+build-lloader:: $(lloader-deps)
 build-lloader $(LLOADER)::
 	$(ECHO) '  BUILD   build-lloader'
 	$(Q)$(MAKE) -C l-loader BL1=$(PWD)/$(BL1) CROSS_COMPILE="$(CROSS_COMPILE32)" l-loader.bin
@@ -390,12 +293,12 @@ KCONFIGS += kernel_config/optee_gendrv.conf
 #KCONFIGS += kernel_config/ftrace.conf
 
 .PHONY: build-linux
-build-linux:: $(aarch64-linux-gnu-gcc)
+build-linux::
 build-linux $(LINUX):: linux/.config
 	$(ECHO) '  BUILD   build-linux'
 	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image modules
 
-build-dtb:: $(aarch64-linux-gnu-gcc)
+build-dtb::
 build-dtb:: $(DTB) 
 
 $(DTB): linux/.config linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts linux/scripts/dtc/dtc
@@ -517,7 +420,7 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 	    export $(INITRAMFS_EXPORTS) ; \
 	    $(expand-env-var) <initramfs-add-files.txt >>$@
 
-gen_rootfs/filelist-final.txt: .busybox $(host-gcc)
+gen_rootfs/filelist-final.txt:
 	$(ECHO) '  GEN    gen_rootfs/filelist-final.txt'
 	$(Q)cd gen_rootfs ; \
 	    export CROSS_COMPILE="$(CROSS_COMPILE_HOST)" ; \
@@ -561,7 +464,7 @@ grubaa64.efi:: grub/grub-mkimage grub-force
 		--prefix=/boot/grub \
 		configfile fat linux normal help part_gpt
 
-grub/grub-mkimage: $(aarch64-linux-gnu-gcc) grub/Makefile grub-force
+grub/grub-mkimage: grub/Makefile grub-force
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C grub
 
@@ -608,7 +511,7 @@ optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
 #optee-client-flags += RPMB_EMU=
 
 .PHONY: build-optee-client
-build-optee-client: $(aarch64-linux-gnu-gcc)
+build-optee-client:
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_client $(optee-client-flags)
 
@@ -634,24 +537,13 @@ optee-os-flags += CFG_CONSOLE_UART=0
 #optee-os-flags += CFG_RPMB_RESET_FAT=y
 
 # 64-bit TEE Core
-# FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
-# - TEE Core is 64-bit and compiler is aarch64-linux-gnu-gcc
-#   4.9.2-10ubuntu13, and
-# - DEBUG=0, and
-# - 32-bit user libraries are built with arm-linux-gnueabihf-gcc 4.9.2-10ubuntu10
-# Set DEBUG=1, or set $(arm-linux-gnueabihf-) to build user code with:
-#   'arm-linux-gnueabihf-gcc (crosstool-NG linaro-1.13.1-4.8-2013.08 - Linaro GCC 2013.08)
-#    4.8.2 20130805 (prerelease)'
-# or with:
-#   'arm-linux-gnueabihf-gcc (Linaro GCC 2014.11) 4.9.3 20141031 (prerelease)'
-# and the problem disappears.
 ifeq ($(SK),64)
 optee-os-flags += CFG_ARM64_core=y CROSS_COMPILE_core="$(CROSS_COMPILE)"
 optee-os-flags += CROSS_COMPILE_ta_arm64="$(CROSS_COMPILE)"
 endif
 
 .PHONY: build-bl32
-build-bl32:: $(aarch64-linux-gnu-gcc) $(arm-linux-gnueabihf-gcc)
+build-bl32::
 build-bl32::
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_os $(optee-os-flags)
@@ -709,7 +601,7 @@ endif
 
 .PHONY: build-optee-test
 build-optee-test:: $(optee-test-deps)
-build-optee-test:: $(ta-gcc)
+build-optee-test::
 	$(ECHO) '  BUILD   $@'
 	$(Q)[ "$(optee-test-exports)" ] && export $(optee-test-exports); $(MAKE) -C optee_test $(optee-test-flags)
 
@@ -742,7 +634,7 @@ endif
 
 .PHONY: build-aes-perf
 build-aes-perf:: $(aes-perf-deps)
-build-aes-perf:: $(ta-gcc)
+build-aes-perf::
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C aes-perf $(aes-perf-flags)
 
@@ -767,7 +659,7 @@ endif
 
 .PHONY: build-sha-perf
 build-sha-perf:: $(sha-perf-deps)
-build-sha-perf:: $(ta-gcc)
+build-sha-perf::
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C sha-perf $(sha-perf-flags)
 
