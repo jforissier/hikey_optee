@@ -620,9 +620,10 @@ clean-optee-client:
 # OP-TEE OS
 #
 
+CFG_TEE_CORE_LOG_LEVEL ?= 2 # 0=none 1=err 2=info 3=debug 4=flow
 optee-os-flags := CROSS_COMPILE="$(CROSS_COMPILE32)" PLATFORM=hikey
 optee-os-flags += DEBUG=0
-optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=2 # 0=none 1=err 2=info 3=debug 4=flow
+optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=$(CFG_TEE_CORE_LOG_LEVEL)
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 optee-os-flags += CFG_CONSOLE_UART=0
