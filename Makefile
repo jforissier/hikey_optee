@@ -25,6 +25,7 @@ SU ?= 32
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
 #WITH_VALGRIND = 1
+#CFG_SQL_FS = y
 
 .PHONY: FORCE
 
@@ -503,7 +504,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)' IFSQLFS='$(IFSQLFS)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -607,6 +608,12 @@ optee-client-flags := CROSS_COMPILE="$(CROSS_COMPILE_HOST)"
 #optee-client-flags += CFG_TEE_SUPP_LOG_LEVEL=4 CFG_TEE_CLIENT_LOG_LEVEL=4
 #optee-client-flags += RPMB_EMU=
 
+ifeq ($(CFG_SQL_FS),y)
+optee-client-flags += CFG_SQL_FS=y
+else
+IFSQLFS=\#
+endif
+
 .PHONY: build-optee-client
 build-optee-client: $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   $@'
@@ -633,6 +640,9 @@ optee-os-flags += CFG_CONSOLE_UART=0
 #optee-os-flags += CFG_RPMB_FS_DEV_ID=1
 #optee-os-flags += CFG_RPMB_TESTKEY=y
 #optee-os-flags += CFG_RPMB_RESET_FAT=y
+ifeq ($(CFG_SQL_FS),y)
+optee-os-flags += CFG_SQL_FS=y #CFG_REE_FS=n CFG_RPMB_FS=n
+endif
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
