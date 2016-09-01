@@ -25,7 +25,7 @@ SU ?= 32
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
 #WITH_VALGRIND = 1
-#CFG_SQL_FS = y
+CFG_SQL_FS = y
 
 .PHONY: FORCE
 
@@ -635,13 +635,13 @@ optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=$(CFG_TEE_CORE_LOG_LEVEL)
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 optee-os-flags += CFG_CONSOLE_UART=0
 # See also RPMB_EMU= in optee-client-flags
-#optee-os-flags += CFG_RPMB_FS=y
+optee-os-flags += CFG_RPMB_FS=y
 # Uncomment to use an eMMC module in the microSD slot instead of embedded eMMC
 #optee-os-flags += CFG_RPMB_FS_DEV_ID=1
 #optee-os-flags += CFG_RPMB_TESTKEY=y
 #optee-os-flags += CFG_RPMB_RESET_FAT=y
 ifeq ($(CFG_SQL_FS),y)
-optee-os-flags += CFG_SQL_FS=y #CFG_REE_FS=n CFG_RPMB_FS=n
+optee-os-flags += CFG_SQL_FS=y
 endif
 
 # 64-bit TEE Core
