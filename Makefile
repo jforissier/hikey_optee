@@ -38,6 +38,7 @@ all: build-lloader build-fip build-boot-img build-nvme build-ptable
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux clean-boot-img clean-initramfs
 clean: clean-optee-client clean-bl32 clean-aes-perf clean-sha-perf
+clean: clean-tee-stats
 clean: clean-grub clean-dtb
 
 cleaner: clean cleaner-nvme cleaner-aarch64-gcc cleaner-arm-gcc cleaner-busybox
@@ -476,6 +477,9 @@ endif
 ifneq ($(filter all build-sha-perf,$(MAKECMDGOALS)),)
 initramfs-deps += build-sha-perf
 endif
+ifneq ($(filter all build-tee-stats,$(MAKECMDGOALS)),)
+initramfs-deps += build-tee-stats
+endif
 ifneq ($(filter all build-optee-test,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-test
 endif
@@ -643,6 +647,8 @@ optee-os-flags += CFG_RPMB_FS=y
 ifeq ($(CFG_SQL_FS),y)
 optee-os-flags += CFG_SQL_FS=y
 endif
+CFG_WITH_STATS ?= n
+optee-os-flags += CFG_WITH_STATS=$(CFG_WITH_STATS) # Needed by tee-stats
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
@@ -786,6 +792,27 @@ clean-sha-perf:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)rm -rf sha-perf/out
 
+#
+# tee-stats (statistics gathering tool, client side of
+# core/arch/arm/sta/stats.c)
+#
+
+tee-stats-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)"
+
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+tee-stats-deps += build-optee-client
+endif
+
+.PHONY: build-tee-stats
+build-tee-stats:: $(tee-stats-deps)
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C tee-stats $(tee-stats-flags)
+
+clean-tee-stats:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)rm -rf tee-stats/out
+
+#
 define fastboot-flash
 $(Q)stderr=$$(fastboot flash $1 $2 2>&1) || echo $${stderr}
 endef

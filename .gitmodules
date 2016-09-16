@@ -58,3 +58,6 @@
 	path = valgrind
 	url = https://github.com/jforissier/valgrind-trunk
 	branch = with-vex
+[submodule "tee-stats"]
+	path = tee-stats
+	url = https://github.com/jforissier/tee-stats.git
