@@ -37,7 +37,7 @@ all: build-lloader build-fip build-boot-img build-nvme build-ptable
 
 clean: clean-bl1-bl2-bl31-fip clean-bl33 clean-lloader-ptable
 clean: clean-linux clean-boot-img clean-initramfs
-clean: clean-optee-client clean-bl32 clean-aes-perf clean-sha-perf
+clean: clean-optee-client clean-bl32
 clean: clean-tee-stats
 clean: clean-grub clean-dtb
 
@@ -471,12 +471,6 @@ INITRAMFS = initramfs.cpio.gz
 ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
 initramfs-deps += build-optee-client
 endif
-ifneq ($(filter all build-aes-perf,$(MAKECMDGOALS)),)
-initramfs-deps += build-aes-perf
-endif
-ifneq ($(filter all build-sha-perf,$(MAKECMDGOALS)),)
-initramfs-deps += build-sha-perf
-endif
 ifneq ($(filter all build-tee-stats,$(MAKECMDGOALS)),)
 initramfs-deps += build-tee-stats
 endif
@@ -740,57 +734,6 @@ clean-optee-test:
 .PHONY: optee-test-do-patch
 optee-test-do-patch:
 	$(Q)$(MAKE) -C optee_test $(optee-test-flags) patch
-
-
-#
-# aes-perf (AES crypto performance test)
-#
-
-aes-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
-		  CROSS_COMPILE_TA="$(CROSS_COMPILE_S_USER)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU)
-
-ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
-aes-perf-deps += build-bl32
-endif
-ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
-aes-perf-deps += build-optee-client
-endif
-
-.PHONY: build-aes-perf
-build-aes-perf:: $(aes-perf-deps)
-build-aes-perf:: $(ta-gcc)
-	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C aes-perf $(aes-perf-flags)
-
-clean-aes-perf:
-	$(ECHO) '  CLEAN   $@'
-	$(Q)rm -rf aes-perf/out
-
-#
-# sha-perf (SHA performance test)
-#
-
-sha-perf-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
-		  CROSS_COMPILE_TA="$(CROSS_COMPILE_S_USER)" \
-		  TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU)
-
-ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
-sha-perf-deps += build-bl32
-endif
-ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
-sha-perf-deps += build-optee-client
-endif
-
-.PHONY: build-sha-perf
-build-sha-perf:: $(sha-perf-deps)
-build-sha-perf:: $(ta-gcc)
-	$(ECHO) '  BUILD   $@'
-	$(Q)$(MAKE) -C sha-perf $(sha-perf-flags)
-
-clean-sha-perf:
-	$(ECHO) '  CLEAN   $@'
-	$(Q)rm -rf sha-perf/out
 
 #
 # tee-stats (statistics gathering tool, client side of
