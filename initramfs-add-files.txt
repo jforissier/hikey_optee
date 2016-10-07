@@ -47,14 +47,6 @@ ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-544f53345041524d.ta ${TOP}/optee
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5454434649434132.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454434649434132.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta ${TOP}/optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54494d45415049.ta 444 0 0
 
-# AES benchmark application
-file /bin/aes-perf ${TOP}/aes-perf/out/aes-perf/aes-perf 755 0 0
-file /lib/optee_armtz/e626662e-c0e2-485c-b8c809fbce6edf3d.ta ${TOP}/aes-perf/out/ta/e626662e-c0e2-485c-b8c809fbce6edf3d.ta 444 0 0
-
-# SHA benchmark application
-file /bin/sha-perf ${TOP}/sha-perf/out/sha-perf/sha-perf 755 0 0
-file /lib/optee_armtz/614789f2-39c0-4ebf-b23592b32ac107ed.ta ${TOP}/sha-perf/out/ta/614789f2-39c0-4ebf-b23592b32ac107ed.ta 444 0 0
-
 # TEE statistics tool
 file /bin/tee-stats ${TOP}/tee-stats/out/tee-stats 755 0 0
 
