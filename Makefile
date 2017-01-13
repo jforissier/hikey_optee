@@ -384,7 +384,7 @@ clean-lloader-ptable:
 # each time it is run
 
 LINUX = linux/arch/arm64/boot/Image
-DTB = hi6220-hikey.dtb
+DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 # Config fragments to merge with the default kernel configuration
 KCONFIGS += kernel_config/dmabuf.conf
 #KCONFIGS += kernel_config/usb_net_dm9601.conf
@@ -402,7 +402,7 @@ build-dtb:: $(DTB)
 
 $(DTB): linux/.config linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts linux/scripts/dtc/dtc
 	$(ECHO) '  BUILD   $(DTB)'
-	$(Q)$(CROSS_COMPILE)gcc -E -nostdinc -I./linux/arch/arm64/boot/dts -I./linux/arch/arm64/boot/dts/include -D__DTS__ -x assembler-with-cpp hi6220-hikey.dts | ./linux/scripts/dtc/dtc -O dtb -o hi6220-hikey.dtb -i linux/arch/arm64/boot/dts/hisilicon
+	$(Q)$(MAKE) -C linux ARCH=arm64 hisilicon/hi6220-hikey.dtb
 
 linux/.config: $(KCONFIGS)
 	$(ECHO) '  BUILD   $@'
