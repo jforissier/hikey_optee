@@ -32,6 +32,8 @@ file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c-0800200c9a66.ta ${TOP}/optee_test/
 file /lib/optee_armtz/e6a33ed4-562b-463a-bb7e-ff5e15a493c8.ta ${TOP}/optee_test/out/ta/sims/e6a33ed4-562b-463a-bb7e-ff5e15a493c8.ta 444 0 0
 file /lib/optee_armtz/e13010e0-2ae1-11e5-896a-0002a5d5c51b.ta ${TOP}/optee_test/out/ta/concurrent/e13010e0-2ae1-11e5-896a-0002a5d5c51b.ta 444 0 0
 file /lib/optee_armtz/5ce0c432-0ab0-40e5-a056-782ca0e6aba2.ta ${TOP}/optee_test/out/ta/concurrent_large/5ce0c432-0ab0-40e5-a056-782ca0e6aba2.ta 444 0 0
+file /lib/optee_armtz/e626662e-c0e2-485c-b8c8-09fbce6edf3d.ta ${TOP}/optee_test/out/ta/aes_perf/e626662e-c0e2-485c-b8c8-09fbce6edf3d.ta 444 0 0
+file /lib/optee_armtz/614789f2-39c0-4ebf-b235-92b32ac107ed.ta ${TOP}/optee_test/out/ta/sha_perf/614789f2-39c0-4ebf-b235-92b32ac107ed.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c54-2d54412d3031.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF/534d4152-542d-4353-4c54-2d54412d3031.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c54-2d54412d4552.ta ${TOP}/optee_test/out/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c54-2d54412d4552.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-542d-4353-4c54-2d54412d5354.ta ${TOP}/optee_test/out/ta/GP_TTA_testingClientAPI/534d4152-542d-4353-4c54-2d54412d5354.ta 444 0 0
