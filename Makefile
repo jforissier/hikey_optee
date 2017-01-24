@@ -641,7 +641,7 @@ optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
 CFG_CONSOLE_UART ?= 0
 optee-os-flags += CFG_CONSOLE_UART=$(CFG_CONSOLE_UART)
 # See also RPMB_EMU= in optee-client-flags
-optee-os-flags += CFG_RPMB_FS=y
+optee-os-flags += CFG_RPMB_FS=y CFG_RPMB_WRITE_KEY=y
 # Uncomment to use an eMMC module in the microSD slot instead of embedded eMMC
 #optee-os-flags += CFG_RPMB_FS_DEV_ID=1
 #optee-os-flags += CFG_RPMB_TESTKEY=y
