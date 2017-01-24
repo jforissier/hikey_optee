@@ -26,6 +26,7 @@ SU ?= 32
 #WITH_MMC-UTILS ?= 1
 #WITH_VALGRIND = 1
 CFG_SQL_FS = y
+CFG_SOCKET = n
 
 .PHONY: FORCE
 
@@ -502,7 +503,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)' IFSQLFS='$(IFSQLFS)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)' IFSQLFS='$(IFSQLFS)' IFSOCKET='$(IFSOCKET)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -610,6 +611,12 @@ ifeq ($(CFG_SQL_FS),y)
 optee-client-flags += CFG_SQL_FS=y
 else
 IFSQLFS=\#
+endif
+
+ifeq ($(CFG_SOCKET),y)
+optee-client-flags += CFG_SOCKET=y
+else
+IFSOCKET=\#
 endif
 
 .PHONY: build-optee-client

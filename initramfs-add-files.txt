@@ -11,6 +11,9 @@ file /usbnet.sh ${TOP}/usbnet.sh 755 0 0
 # rc.d entry for OP-TEE (start on boot)
 file /etc/init.d/optee ${TOP}/init.d.optee 755 0 0
 slink /etc/rc.d/S09_optee /etc/init.d/optee 755 0 0
+# rc.d entry to enable the loopback interface
+file /etc/init.d/netlo ${TOP}/init.d.netlo 755 0 0
+slink /etc/rc.d/S05_netlo /etc/init.d/netlo 755 0 0
 
 # OP-TEE client
 file /bin/tee-supplicant ${TOP}/optee_client/out/export/bin/tee-supplicant 755 0 0
@@ -48,6 +51,7 @@ ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5445-5252544f4f53.ta ${TOP}/opte
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-544f-53345041524d.ta ${TOP}/optee_test/out/ta/GP_TTA_check_OpenSession_with_4_parameters/534d4152-5443-534c-544f-53345041524d.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5454-434649434132.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454-434649434132.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5f54-494d45415049.ta ${TOP}/optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54-494d45415049.ta 444 0 0
+${IFSOCKET}file /lib/optee_armtz/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta ${TOP}/optee_test/out/ta/socket/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta 444 0 0
 
 # TEE statistics tool
 file /bin/tee-stats ${TOP}/tee-stats/out/tee-stats 755 0 0
