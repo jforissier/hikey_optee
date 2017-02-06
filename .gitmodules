@@ -4,8 +4,8 @@
 	branch = hikey
 [submodule "arm-trusted-firmware"]
 	path = arm-trusted-firmware
-	url = https://github.com/linaro-swg/arm-trusted-firmware.git
-	branch = hikey_gendrv
+	url = https://github.com/96boards-hikey/arm-trusted-firmware
+	branch = hikey
 [submodule "l-loader"]
 	path = l-loader
 	url = https://github.com/96boards-hikey/l-loader.git
