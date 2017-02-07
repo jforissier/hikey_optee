@@ -53,3 +53,6 @@
 [submodule "tee-stats"]
 	path = tee-stats
 	url = https://github.com/jforissier/tee-stats.git
+[submodule "dropbear"]
+	path = dropbear
+	url = https://github.com/mkj/dropbear

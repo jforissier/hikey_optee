@@ -14,6 +14,9 @@ slink /etc/rc.d/S09_optee /etc/init.d/optee 755 0 0
 # rc.d entry to enable the loopback interface
 file /etc/init.d/netlo ${TOP}/init.d.netlo 755 0 0
 slink /etc/rc.d/S05_netlo /etc/init.d/netlo 755 0 0
+# rc.d entry to start Dropbear SSH
+${IFDROPBEAR}file /etc/init.d/dropbear ${TOP}/init.d.dropbear 755 0 0
+${IFDROPBEAR}slink /etc/rc.d/S07_dropbear /etc/init.d/dropbear 755 0 0
 
 # OP-TEE client
 file /bin/tee-supplicant ${TOP}/optee_client/out/export/bin/tee-supplicant 755 0 0
@@ -101,3 +104,15 @@ ${IFVALGRIND}file /usr/lib/valgrind/vgpreload_memcheck-${VALGRIND_ARCH}-linux.so
 ${IFVALGRIND}file /usr/lib/valgrind/default.supp  ${TOP}/inst/valgrind/usr/lib/valgrind/default.supp 644 0 0
 
 ${IFVALGRIND}file /usr/bin/valgrind ${TOP}/inst/valgrind/usr/bin/valgrind 755 0 0
+
+# Dropbear SSH
+${IFDROPBEAR}dir /usr/sbin 755 0 0
+${IFDROPBEAR}file /usr/sbin/dropbear ${TOP}/inst/dropbear/usr/sbin/dropbear 755 0 0
+${IFDROPBEAR}file /usr/bin/dropbearkey ${TOP}/inst/dropbear/usr/bin/dropbearkey 755 0 0
+${IFDROPBEAR}file /usr/bin/scp ${TOP}/inst/dropbear/usr/bin/scp 755 0 0
+${IFDROPBEAR}dir /etc/dropbear 755 0 0
+# Always install the same host keys for convenience. New keys may be generated
+# with: /usr/bin/dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key
+#       /usr/bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+${IFDROPBEAR}file /etc/dropbear/dropbear_dss_host_key ${TOP}/dropbear_dss_host_key 644 0 0
+${IFDROPBEAR}file /etc/dropbear/dropbear_rsa_host_key ${TOP}/dropbear_rsa_host_key 644 0 0

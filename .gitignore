@@ -5,6 +5,7 @@
 /.strace_exports
 /.initramfs_exports
 /.valgrind_exports
+/.dropbear_exports
 /nvme.img
 /boot.img
 /initramfs.cpio.gz

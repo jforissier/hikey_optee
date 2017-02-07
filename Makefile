@@ -25,6 +25,12 @@ SU ?= 32
 # mmc (mmc-utils)
 #WITH_MMC-UTILS ?= 1
 #WITH_VALGRIND = 1
+# Dropbear SSH
+# Note: the DM9601 USB-Ethernet adapter requires a kernel based on the
+# 96boards-hikey Git such as:
+# https://github.com/jforissier/linux branch 96boards-hikey--hikey-mainline-rebase-v4.9-rc5--optee-v14
+# (mainline + OP-TEE patches v14 [v4.9-rc8-156-gdc4d9f4] does not detect the dongle)
+#WITH_DROPBEAR = 1
 CFG_SQL_FS = y
 CFG_SOCKET = n
 
@@ -388,7 +394,9 @@ LINUX = linux/arch/arm64/boot/Image
 DTB = linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb
 # Config fragments to merge with the default kernel configuration
 KCONFIGS += kernel_config/dmabuf.conf
-#KCONFIGS += kernel_config/usb_net_dm9601.conf
+ifeq ($(WITH_DROPBEAR),1)
+KCONFIGS += kernel_config/usb_net_dm9601.conf
+endif
 KCONFIGS += kernel_config/optee_gendrv.conf
 #KCONFIGS += kernel_config/ftrace.conf
 
@@ -491,6 +499,11 @@ endif
 ifeq ($(WITH_VALGRIND),1)
 ifneq ($(filter all build-valgrind,$(MAKECMDGOALS)),)
 initramfs-deps += build-valgrind
+endif
+endif
+ifeq ($(WITH_DROPBEAR),1)
+ifneq ($(filter all build-dropbear,$(MAKECMDGOALS)),)
+initramfs-deps += build-dropbear
 endif
 endif
 
@@ -891,6 +904,51 @@ cleaner: cleaner-valgrind
 else
 
 IFVALGRIND=\#
+
+endif
+
+#
+# dropbear ssh
+#
+
+ifeq ($(WITH_DROPBEAR),1)
+
+DROPBEAR_EXPORTS := CC='$(CROSS_COMPILE_HOST)gcc' LD='$(CROSS_COMPILE_HOST)ld'
+
+build-dropbear: dropbear/Makefile
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C dropbear install PROGRAMS="dropbear dropbearkey scp" DESTDIR=$(PWD)/inst/dropbear
+
+.dropbear_exports: FORCE
+	$(ECHO) '  CHK     $@'
+	$(Q)echo $(DROPBEAR_EXPORTS) >$@.new && (cmp $@ $@.new >/dev/null 2>&1 || mv $@.new $@)
+	$(Q)rm -rf $@.new
+
+dropbear/Makefile: dropbear/configure .dropbear_exports
+	$(ECHO) '  GEN     $@'
+	$(Q)set -e ; export $(DROPBEAR_EXPORTS) ; \
+	    cd dropbear ; ./configure --host=$(MULTIARCH) --disable-zlib --prefix=/usr
+
+dropbear/configure:
+	$(ECHO) ' GEN      $@'
+	$(Q)cd dropbear ; autoconf && autoheader
+
+.PHONY: clean-dropbear
+clean-dropbear:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)export $(DROPBEAR_EXPORTS) ; [ -d dropbear ] && $(MAKE) -C dropbear clean || :
+	$(Q)rm -f .dropbear_exports .dropbear_exports.new
+
+.PHONY: cleaner-dropbear
+cleaner-dropbear:
+	$(ECHO) '  CLEANER $@'
+	$(Q)rm -f dropbear/Makefile dropbear/configure
+
+cleaner: cleaner-dropbear
+
+else
+
+IFDROPBEAR=\#
 
 endif
 

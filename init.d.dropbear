@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# /etc/init.d/dropbear
+#
+# Start/stop Dropbear SSH server
+#
+case "$1" in
+    start)
+	if [ ! -x /usr/sbin/dropbear ]; then
+		return 0
+	fi
+	echo "Starting Dropbear SSH server..."
+	/usr/sbin/dropbear
+	# Hacks
+	# Dropbear wants the home for root to be under /home
+	[ -d /home/root ] || mkdir -p /home/root
+	# Passwordless root won't permit remote access
+	PW=root
+	printf "$PW\n$PW\n" | passwd
+	echo "Info: root password for SSH access is: $PW"
+        ;;
+    stop)
+	killall dropbear
+	;;
+esac
