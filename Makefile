@@ -32,7 +32,7 @@ SU ?= 32
 # (mainline + OP-TEE patches v14 [v4.9-rc8-156-gdc4d9f4] does not detect the dongle)
 #WITH_DROPBEAR = 1
 CFG_SQL_FS = y
-CFG_SOCKET = n
+CFG_GP_SOCKETS = y
 
 .PHONY: FORCE
 
@@ -626,8 +626,8 @@ else
 IFSQLFS=\#
 endif
 
-ifeq ($(CFG_SOCKET),y)
-optee-client-flags += CFG_SOCKET=y
+ifeq ($(CFG_GP_SOCKETS),y)
+optee-client-flags += CFG_GP_SOCKETS=y
 else
 IFSOCKET=\#
 endif
@@ -664,6 +664,7 @@ optee-os-flags += CFG_SQL_FS=y
 endif
 CFG_WITH_STATS ?= n
 optee-os-flags += CFG_WITH_STATS=$(CFG_WITH_STATS) # Needed by tee-stats
+optee-os-flags += CFG_GP_SOCKETS=$(CFG_GP_SOCKETS)
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:
