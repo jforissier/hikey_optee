@@ -751,7 +751,7 @@ build-optee-test:: $(ta-gcc)
 # previously.
 clean-optee-test:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)rm -rf optee_test/out
+	$(Q)$(MAKE) -C optee_test $(optee-test-flags) clean
 
 .PHONY: optee-test-do-patch
 optee-test-do-patch:
