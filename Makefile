@@ -34,6 +34,11 @@ SU ?= 32
 CFG_RPMB_FS = y
 CFG_SQL_FS = y
 CFG_GP_SOCKETS = y
+CFG_SECURE_DATA_PATH = y
+
+ifneq ($(CFG_SECURE_DATA_PATH), y)
+IFSDP=\#
+endif
 
 .PHONY: FORCE
 
@@ -400,6 +405,7 @@ KCONFIGS += kernel_config/usb_net_dm9601.conf
 endif
 KCONFIGS += kernel_config/optee_gendrv.conf
 #KCONFIGS += kernel_config/ftrace.conf
+KCONFIGS += kernel_config/ion_unmapped_heap_sdp.conf
 
 .PHONY: build-linux
 build-linux:: $(aarch64-linux-gnu-gcc)
@@ -523,7 +529,7 @@ build-initramfs $(INITRAMFS):: gen_rootfs/filelist-all.txt linux/usr/gen_init_cp
 # Warning:
 # '=' not ':=' because we don't want the right-hand side to be evaluated
 # immediately. This would be a problem when IFGP is '#'
-INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)' IFSOCKET='$(IFSOCKET)'
+INITRAMFS_EXPORTS = TOP='$(CURDIR)' IFGP='$(IFGP)' IFSTRACE='$(IFSTRACE)' MULTIARCH='$(MULTIARCH)' IFIW='$(IFIW)' IFWLFW='$(IFWLFW)' IFMMCUTILS='$(IFMMCUTILS)' VALGRIND_ARCH='$(VALGRIND_ARCH)' IFSOCKET='$(IFSOCKET)' IFSDP='$(IFSDP)'
 
 .initramfs_exports: FORCE
 	$(ECHO) '  CHK     $@'
@@ -668,6 +674,7 @@ endif
 CFG_WITH_STATS ?= n
 optee-os-flags += CFG_WITH_STATS=$(CFG_WITH_STATS) # Needed by tee-stats
 optee-os-flags += CFG_GP_SOCKETS=$(CFG_GP_SOCKETS)
+optee-os-flags += CFG_SECURE_DATA_PATH=$(CFG_SECURE_DATA_PATH)
 
 # 64-bit TEE Core
 # FIXME: Compiler bug? xtest 4002 hangs (endless loop) when:

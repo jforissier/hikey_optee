@@ -53,6 +53,7 @@ ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-544f-53345041524d.ta ${TOP}/opte
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5454-434649434132.ta ${TOP}/optee_test/out/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454-434649434132.ta 444 0 0
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5f54-494d45415049.ta ${TOP}/optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54-494d45415049.ta 444 0 0
 ${IFSOCKET}file /lib/optee_armtz/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta ${TOP}/optee_test/out/ta/socket/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta 444 0 0
+${IFSDP}file /lib/optee_armtz/12345678-5b69-11e4-9dbb-101f74f00099.ta ${TOP}/optee_test/out/ta/sdp_basic/12345678-5b69-11e4-9dbb-101f74f00099.ta 444 0 0
 
 # "Hello world" application
 file /bin/hello_word ${TOP}/hello_world/host/hello_world 755 0 0
