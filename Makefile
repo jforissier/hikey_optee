@@ -634,7 +634,7 @@ IFSOCKET=\#
 endif
 
 .PHONY: build-optee-client
-build-optee-client: $(aarch64-linux-gnu-gcc)
+build-optee-client: $(host-gcc)
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C optee_client $(optee-client-flags)
 
