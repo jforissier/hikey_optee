@@ -56,3 +56,6 @@
 [submodule "dropbear"]
 	path = dropbear
 	url = https://github.com/mkj/dropbear
+[submodule "hello_world"]
+	path = hello_world
+	url = https://github.com/linaro-swg/hello_world.git

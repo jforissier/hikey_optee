@@ -56,6 +56,10 @@ ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5454-434649434132.ta ${TOP}/opte
 ${IFGP}file /lib/optee_armtz/534d4152-5443-534c-5f54-494d45415049.ta ${TOP}/optee_test/out/ta/GP_TTA_Time/534d4152-5443-534c-5f54-494d45415049.ta 444 0 0
 ${IFSOCKET}file /lib/optee_armtz/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta ${TOP}/optee_test/out/ta/socket/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.ta 444 0 0
 
+# "Hello world" application
+file /bin/hello_word ${TOP}/hello_world/host/hello_world 755 0 0
+file /lib/optee_armtz/8aaaf200-2450-11e4-abe2-0002a5d5c51b.ta ${TOP}/hello_world/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.ta 444 0 0
+
 # TEE statistics tool
 file /bin/tee-stats ${TOP}/tee-stats/out/tee-stats 755 0 0
 

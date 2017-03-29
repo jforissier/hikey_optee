@@ -507,6 +507,9 @@ ifneq ($(filter all build-dropbear,$(MAKECMDGOALS)),)
 initramfs-deps += build-dropbear
 endif
 endif
+ifneq ($(filter all build-helloworld,$(MAKECMDGOALS)),)
+initramfs-deps += build-helloworld
+endif
 
 .PHONY: build-initramfs
 build-initramfs:: $(initramfs-deps)
@@ -956,3 +959,30 @@ IFDROPBEAR=\#
 
 endif
 
+#
+# "Hello world" test/sample application
+#
+
+helloworld-flags := HOST_CROSS_COMPILE="$(CROSS_COMPILE_HOST)" \
+		    TA_CROSS_COMPILE="$(CROSS_COMPILE_S_USER)" \
+		    TA_DEV_KIT_DIR=$(PWD)/optee_os/out/arm-plat-hikey/export-ta_arm$(SU) \
+		    TEEC_EXPORT=$(PWD)/optee_client/out/export
+
+ifneq ($(filter all build-bl32,$(MAKECMDGOALS)),)
+helloworld-deps += build-bl32
+endif
+ifneq ($(filter all build-optee-client,$(MAKECMDGOALS)),)
+helloworld-deps += build-optee-client
+endif
+
+.PHONY: build-helloworld
+build-helloworld:: $(helloworld-deps)
+build-helloworld:: $(ta-gcc)
+	$(ECHO) '  BUILD   $@'
+	$(Q)$(MAKE) -C hello_world $(helloworld-flags)
+
+clean-helloworld:
+	$(ECHO) '  CLEAN   $@'
+	$(Q)$(MAKE) -C hello_world $(helloworld-flags) clean
+
+clean: clean-helloworld
