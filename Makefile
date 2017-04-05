@@ -983,6 +983,6 @@ build-helloworld:: $(ta-gcc)
 
 clean-helloworld:
 	$(ECHO) '  CLEAN   $@'
-	$(Q)$(MAKE) -C hello_world $(helloworld-flags) clean
+	-$(Q)$(MAKE) -C hello_world $(helloworld-flags) clean
 
 clean: clean-helloworld
