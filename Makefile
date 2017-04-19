@@ -464,7 +464,10 @@ build-boot-img $(BOOT-IMG)::
 	$(ECHO) '  GEN    $(BOOT-IMG)'
 	$(Q)rm -f $(BOOT-IMG)
 	$(Q)mformat -i $(BOOT-IMG) -n 64 -h 255 -T 131072 -v "BOOT IMG" -C ::
-	$(Q)mcopy -i $(BOOT-IMG) $(LINUX) $(DTB) $(GRUB) ::
+	$(Q)mcopy -i $(BOOT-IMG) $(LINUX) $(DTB) ::
+	$(Q)mmd -i $(BOOT-IMG) ::/EFI
+	$(Q)mmd -i $(BOOT-IMG) ::/EFI/BOOT
+	$(Q)mcopy -i $(BOOT-IMG) $(GRUB) ::/EFI/BOOT
 	$(Q)mcopy -i $(BOOT-IMG) $(INITRAMFS) ::/initrd.img
 	$(Q)mcopy -i $(BOOT-IMG) edk2/Build/HiKey/$(EDK2_DEB_REL)_GCC49/AARCH64/AndroidFastbootApp.efi ::
 

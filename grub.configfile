@@ -1,2 +1,2 @@
-set prefix=(hd0,gpt6)
+set prefix=(hd0,gpt6)'/EFI/BOOT'
 configfile (hd0,gpt6)/grub.cfg
