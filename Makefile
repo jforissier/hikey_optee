@@ -135,7 +135,7 @@ BUSYBOX_DIR = $(BUSYBOX_TARBALL:.tar.bz2=)
 #
 # Aarch64 toolchain
 #
-AARCH64_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux.tar.xz
+AARCH64_GCC_URL = https://releases.linaro.org/components/toolchain/binaries/6.2-2016.11/aarch64-linux-gnu/gcc-linaro-6.2.1-2016.11-x86_64_aarch64-linux-gnu.tar.xz
 AARCH64_GCC_TARBALL = $(call filename,$(AARCH64_GCC_URL))
 AARCH64_GCC_DIR = $(AARCH64_GCC_TARBALL:.tar.xz=)
 # If you don't want to download the aarch64 toolchain, comment out
@@ -147,7 +147,7 @@ export CROSS_COMPILE ?= $(CCACHE)$(PWD)/toolchains/$(AARCH64_GCC_DIR)/bin/aarch6
 #
 # Aarch32 toolchain
 #
-ARM_GCC_URL = https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+ARM_GCC_URL = https://releases.linaro.org/components/toolchain/binaries/6.2-2016.11/arm-linux-gnueabihf/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf.tar.xz
 ARM_GCC_TARBALL = $(call filename,$(ARM_GCC_URL))
 ARM_GCC_DIR = $(ARM_GCC_TARBALL:.tar.xz=)
 # If you don't want to download the aarch32 toolchain, comment out
