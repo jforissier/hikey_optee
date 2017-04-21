@@ -405,7 +405,7 @@ KCONFIGS += kernel_config/optee_gendrv.conf
 build-linux:: $(aarch64-linux-gnu-gcc)
 build-linux $(LINUX):: linux/.config
 	$(ECHO) '  BUILD   build-linux'
-	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image modules
+	$(Q)flock .linuxbuildinprogress $(MAKE) -C linux ARCH=arm64 LOCALVERSION= Image
 
 build-dtb:: $(aarch64-linux-gnu-gcc)
 build-dtb:: $(DTB) 
