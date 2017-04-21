@@ -90,10 +90,6 @@ ${IFVALGRIND}file /usr/lib/valgrind/exp-sgcheck-${VALGRIND_ARCH}-linux ${TOP}/in
 ${IFVALGRIND}file /usr/lib/valgrind/getoff-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/getoff-${VALGRIND_ARCH}-linux 755 0 0
 ${IFVALGRIND}file /usr/lib/valgrind/helgrind-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/helgrind-${VALGRIND_ARCH}-linux 755 0 0
 ${IFVALGRIND}file /usr/lib/valgrind/lackey-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/lackey-${VALGRIND_ARCH}-linux 755 0 0
-${IFVALGRIND}file /usr/lib/valgrind/libcoregrind-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libcoregrind-${VALGRIND_ARCH}-linux.a 755 0 0
-${IFVALGRIND}file /usr/lib/valgrind/libreplacemalloc_toolpreload-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libreplacemalloc_toolpreload-${VALGRIND_ARCH}-linux.a 755 0 0
-${IFVALGRIND}file /usr/lib/valgrind/libvex-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libvex-${VALGRIND_ARCH}-linux.a 755 0 0
-${IFVALGRIND}file /usr/lib/valgrind/libvexmultiarch-${VALGRIND_ARCH}-linux.a ${TOP}/inst/valgrind/usr/lib/valgrind/libvexmultiarch-${VALGRIND_ARCH}-linux.a 755 0 0
 ${IFVALGRIND}file /usr/lib/valgrind/massif-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/massif-${VALGRIND_ARCH}-linux 755 0 0
 ${IFVALGRIND}file /usr/lib/valgrind/memcheck-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/memcheck-${VALGRIND_ARCH}-linux 755 0 0
 ${IFVALGRIND}file /usr/lib/valgrind/none-${VALGRIND_ARCH}-linux ${TOP}/inst/valgrind/usr/lib/valgrind/none-${VALGRIND_ARCH}-linux 755 0 0
