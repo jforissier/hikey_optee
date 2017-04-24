@@ -20,11 +20,10 @@ ${IFDROPBEAR}slink /etc/rc.d/S07_dropbear /etc/init.d/dropbear 755 0 0
 
 # OP-TEE client
 file /bin/tee-supplicant ${TOP}/optee_client/out/export/bin/tee-supplicant 755 0 0
-dir /lib/${MULTIARCH} 755 0 0
-file /lib/${MULTIARCH}/libteec.so.1.0 ${TOP}/optee_client/out/export/lib/libteec.so.1.0 755 0 0
-slink /lib/${MULTIARCH}/libteec.so.1 libteec.so.1.0 755 0 0
-slink /lib/${MULTIARCH}/libteec.so libteec.so.1 755 0 0
-${IFSQLFS}file /lib/${MULTIARCH}/libsqlfs.so.1.0 ${TOP}/optee_client/out/libsqlfs/libsqlfs.so.1.0 755 0 0
+file /lib/libteec.so.1.0 ${TOP}/optee_client/out/export/lib/libteec.so.1.0 755 0 0
+slink /lib/libteec.so.1 libteec.so.1.0 755 0 0
+slink /lib/libteec.so libteec.so.1 755 0 0
+${IFSQLFS}file /lib/libsqlfs.so.1.0 ${TOP}/optee_client/out/libsqlfs/libsqlfs.so.1.0 755 0 0
 
 # OP-TEE tests
 file /bin/xtest ${TOP}/optee_test/out/xtest/xtest 755 0 0
