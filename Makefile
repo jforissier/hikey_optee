@@ -658,6 +658,11 @@ optee-os-flags += DEBUG=0
 optee-os-flags += CFG_TEE_CORE_LOG_LEVEL=$(CFG_TEE_CORE_LOG_LEVEL)
 #optee-os-flags += CFG_WITH_PAGER=y
 optee-os-flags += CFG_TEE_TA_LOG_LEVEL=3
+# Note: If the NW console UART is different from the SW console UART, you need
+# to make sure the DT is configured accordingly. That is: if you set e.g.,
+# CFG_CONSOLE_UART=3 here, the DT node uart3 must have status="disabled".
+# Otherwise Linux will somehow access the UART and from this point OP-TEE won't
+# be able to send any ouput.
 CFG_CONSOLE_UART ?= 0
 optee-os-flags += CFG_CONSOLE_UART=$(CFG_CONSOLE_UART)
 # See also RPMB_EMU= in optee-client-flags
