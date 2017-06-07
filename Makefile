@@ -422,7 +422,7 @@ $(DTB): linux/.config linux/arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts linux
 
 linux/.config: $(KCONFIGS)
 	$(ECHO) '  BUILD   $@'
-	$(Q)cd linux && ARCH=arm64 flock .linuxbuildinprogress scripts/kconfig/merge_config.sh \
+	+$(Q)cd linux && ARCH=arm64 scripts/kconfig/merge_config.sh \
 	    arch/arm64/configs/defconfig $(patsubst %,../%,$(KCONFIGS))
 
 linux/usr/gen_init_cpio: linux/.config
@@ -432,6 +432,7 @@ linux/usr/gen_init_cpio: linux/.config
 linux/scripts/dtc/dtc:
 	$(ECHO) '  BUILD   $@'
 	$(Q)$(MAKE) -C linux ARCH=arm64 scripts/dtc/dtc
+
 clean-linux:
 	$(ECHO) '  CLEAN   $@'
 	$(Q)$(MAKE) -C linux ARCH=arm64 clean
