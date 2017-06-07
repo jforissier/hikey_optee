@@ -547,7 +547,7 @@ gen_rootfs/filelist-all.txt: gen_rootfs/filelist-final.txt initramfs-add-files.t
 gen_rootfs/filelist-final.txt: .busybox $(host-gcc)
 	$(ECHO) '  GEN    gen_rootfs/filelist-final.txt'
 	$(Q)cd gen_rootfs ; \
-	    export CROSS_COMPILE="$(CROSS_COMPILE_HOST)" ; \
+	    export CROSS_COMPILE="$(CROSS_COMPILE_HOST)" ; export CFG_NW_CONSOLE_UART="$(CFG_CONSOLE_UART)" ; \
 	    ./generate-cpio-rootfs.sh hikey nocpio
 
 clean-initramfs:
