@@ -119,7 +119,8 @@ help:
 	@echo "  fastboot flash nvme $(NVME)"
 	@echo "  fastboot flash boot $(BOOT-IMG)"
 	@echo "  # Set J15 pins 1-2 closed 3-4 open 5-6 open (boot from eMMC)"
-	@echo "Use 'make flash' to run all the above commands"
+	@echo "Use 'make flash' to run all the above commands or 'make quickflash'"
+	@echo "to do only $(FIP) and $(BOOT-IMG)."
 
 ifneq (,$(shell which ccache))
 CCACHE = ccache # do not remove this comment or the trailing space will go
@@ -815,6 +816,15 @@ flash:
 	$(call fastboot-flash,fastboot,$(FIP))
 	$(ECHO) '  FLASH   $(NVME)'
 	$(call fastboot-flash,nvme,$(NVME))
+	$(ECHO) '  FLASH   $(BOOT-IMG)'
+	$(call fastboot-flash,boot,$(BOOT-IMG))
+
+.PHONY: quickflash
+quickflash:
+	$(ECHO) '  FLASH   $(LLOADER)'
+	$(Q)python burn-boot/hisi-idt.py --img1=$(LLOADER) >/dev/null
+	$(ECHO) '  FLASH   $(FIP)'
+	$(call fastboot-flash,fastboot,$(FIP))
 	$(ECHO) '  FLASH   $(BOOT-IMG)'
 	$(call fastboot-flash,boot,$(BOOT-IMG))
 
