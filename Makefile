@@ -731,6 +731,13 @@ endif
 
 all: build-optee-test
 clean: clean-optee-test
+# Half buggy way of avoiding leftovers during "make clean":
+# If clean-bl32 is run before clean-optee-test, ta_dev_kit.mk is gone when
+# optee_test tries to use it so object files are not removed, which is likely
+# to cause build issues later.
+# Of course, these dependencies won't avoid troubles with
+# "make clean-bl32; make clean-optee-test".
+clean-bl32: clean-optee-test clean-helloworld
 
 # TODO: now that OP-TEE supports 32- and 64-bit TAs, make it configurable
 optee-test-flags := CROSS_COMPILE_HOST="$(CROSS_COMPILE_HOST)" \
