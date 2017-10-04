@@ -20,6 +20,9 @@ SK ?= 64
 # Secure user mode (Trusted Apps): 32 or 64-bit
 SU ?= 32
 
+# HiKey boards come in two versions: 4G or 8G of flash
+FLASH_SIZE ?= 4
+
 # Uncomment to enable
 #WITH_STRACE ?= 1
 # mmc (mmc-utils)
@@ -360,7 +363,7 @@ clean-bl1-bl2-bl31-fip:
 #
 
 LLOADER = l-loader/l-loader.bin
-PTABLE = l-loader/ptable-linux-4g.img
+PTABLE = l-loader/ptable-linux-$(FLASH_SIZE)g.img
 
 ifneq ($(filter all build-bl1,$(MAKECMDGOALS)),)
 lloader-deps += build-bl1
