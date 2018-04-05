@@ -1,8 +1,0 @@
-# HiKey board -- https://github.com/96boards/documentation/wiki/HiKeyGettingStarted
-
-# fastboot protocol on Kirin620 SoC
-SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="d00d", MODE="0666"
-# HiKey board recovery port (to flash firmware with hisi-idt.py tool)
-# The device is available when the board is booted with jumper J15 pins 3-4 are closed
-# NOTE: the devices disappears after 60s (firmware timeout)
-SUBSYSTEM=="usb", ATTRS{idVendor}=="12d1", MODE="0666", ENV{ID_MM_DEVICE_IGNORE}="1"
